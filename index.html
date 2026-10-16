@@ -397,6 +397,9 @@ code, kbd, pre, textarea, .var, .readout, output, .formula { font-variant-ligatu
 .wb-sim:fullscreen .stage { height: auto; flex: 1; min-height: 50vh; }
 .wb-sim:fullscreen .serial, .wb-sim:fullscreen .chart-wrap canvas { height: 140px; }
 
+/* свечение светодиодов может выходить за рамку схемы */
+.board-svg, .hero-board { overflow: visible; }
+
 </style>
 </head>
 <body>
@@ -433,7 +436,7 @@ code, kbd, pre, textarea, .var, .readout, output, .formula { font-variant-ligatu
               <li><span class="q">3×</span>Резисторы 220 Ом</li>
               <li><span class="q">1×</span>Пищалка (пассивный зуммер)</li>
               <li><span class="q">1×</span>Тактовая кнопка</li>
-              <li><span class="q">8×</span>Провода «папа–папа»</li>
+              <li><span class="q">9×</span>Провода «папа–папа»</li>
             </ul>
           </div>
           <div class="learn">
@@ -493,13 +496,13 @@ digitalWrite(7, LOW);    // подать 0 В — светодиод погас<
           <div class="body">
             <h3>Светодиод: три правила подключения</h3>
             <ol>
-              <li><b>Полярность.</b> Длинная ножка — <b>анод (+)</b>, к ней приходит провод от пина. Короткая — <b>катод (−)</b>, она идёт к земле GND. Со стороны катода на ободке корпуса есть срез.</li>
-              <li><b>Резистор обязателен.</b> Без него через светодиод потечёт слишком большой ток, и сгорит светодиод или пин Arduino.</li>
-              <li><b>Нужна общая земля.</b> Провод GND от Arduino идёт на синюю шину «−» макетной платы, а резисторы — туда же.</li>
+              <li><b>Полярность.</b> Длинная ножка — <b>анод (+)</b>, к ней приходит сигнал от пина. Короткая — <b>катод (−)</b>, она идёт к земле GND. Со стороны катода на ободке корпуса есть срез.</li>
+              <li><b>Резистор обязателен и стоит со стороны плюса:</b> пин → резистор 220 Ом → длинная ножка. Без резистора потечёт слишком большой ток, и сгорит светодиод или пин Arduino.</li>
+              <li><b>Короткая ножка — в минус.</b> Её вставляем прямо в синюю шину «−», а шину проводом соединяем с GND Arduino.</li>
             </ol>
             <p>Почему именно 220 Ом? Посчитаем ток по закону Ома. На светодиоде «теряется» около 2 В, на резистор остаётся 5 − 2 = 3 В:</p>
             <div class="formula">I = U / R = 3 В / 220 Ом ≈ 0,014 А = 14 мА</div>
-            <p class="muted">Пин Arduino спокойно выдаёт до 20 мА, светодиоду тоже нормально — светит ярко и не перегревается.</p>
+            <p class="muted">Пин Arduino спокойно выдаёт до 20 мА, светодиоду тоже нормально — светит ярко и не перегревается. Если резистор поставить со стороны минуса, ток будет тот же: в цепи из последовательно соединённых деталей он одинаковый везде. Мы ставим его со стороны плюса.</p>
           </div>
           <div class="side">
             <figure class="fig">
@@ -753,7 +756,7 @@ if (mode == MODE_ARMING) {
           <p>Собираем основу сирены. Светодиоды мигают по очереди, как маячки полицейской машины, а пищалка при включении коротко пикает — так проверяем, что всё подключено правильно.</p>
         </div>
         <div class="newlist">
-          <div><b>Детали</b><div class="chips"><span class="chip new">красный светодиод</span><span class="chip new">синий светодиод</span><span class="chip new">2 × резистор 220 Ом</span><span class="chip new">пищалка</span><span class="chip new">5 проводов</span></div></div>
+          <div><b>Детали</b><div class="chips"><span class="chip new">красный светодиод</span><span class="chip new">синий светодиод</span><span class="chip new">2 × резистор 220 Ом</span><span class="chip new">пищалка</span><span class="chip new">6 проводов</span></div></div>
           <div><b>Новое в коде</b><div class="chips"><span class="chip code new">tone()</span><span class="chip code new">noTone()</span><span class="chip code">const int</span><span class="chip code">delay()</span></div></div>
         </div>
       </div>
@@ -793,7 +796,7 @@ if (mode == MODE_ARMING) {
       <div class="wb-slot"></div>
 
       <div class="task-details" data-task="1">
-        <div class="card wide"><h4>Сборка по шагам</h4><div class="assembly-slot"></div></div>
+        <div class="card wide"><h4>Сборка по шагам</h4><p class="muted">Резистор ставим со стороны плюса: поперёк канавки, он соединяет столбец провода от пина со столбцом длинной ножки. Короткая ножка (−) — сразу в верхнюю синюю шину. Перемычка справа соединяет нижнюю и верхнюю шины «−».</p><div class="assembly-slot"></div></div>
         <div class="card"><h4>Как работает код</h4><ol>
           <li>В начале даём пинам имена: <code>RED_LED = 7</code> и так далее. Если провод придётся переставить на другой пин, достаточно поменять одно число.</li>
           <li>В <code>setup()</code> все три пина становятся выходами. Затем <code>tone()</code> → <code>delay(200)</code> → <code>noTone()</code>: писк длиной 0,2 секунды. Он звучит один раз — <code>setup()</code> выполняется только при включении.</li>
@@ -801,8 +804,8 @@ if (mode == MODE_ARMING) {
           <li>Следите за подсветкой строк в коде: она показывает, какая строка выполняется прямо сейчас. Почти всё время программа стоит на строках с <code>delay()</code>.</li>
         </ol></div>
         <div class="card trouble"><h4>Если не работает</h4><ul>
-          <li><b>Светодиод не горит.</b> Длинная ножка должна быть в столбце с проводом от пина, а резистор — в столбце короткой ножки и уходить на синюю шину «−».</li>
-          <li><b>Не горит ничего.</b> Провод GND от Arduino должен идти на ту же шину «−», куда воткнуты резисторы.</li>
+          <li><b>Светодиод не горит.</b> Длинная ножка (+) — в одном столбце с резистором, короткая (−) — в синей шине «−». Перевёрнутый светодиод не горит: поменяйте ножки местами.</li>
+          <li><b>Не горит ничего.</b> Провод GND от Arduino идёт на нижнюю шину «−», а перемычка соединяет её с верхней, куда вставлены короткие ножки.</li>
           <li><b>Пищалка молчит.</b> Её ножки должны стоять в разных столбцах. «+» — к пину 8, «−» — к GND.</li>
           <li><b>Звук хриплый или один и тот же.</b> Скорее всего, пищалка активная. Для сирены нужна пассивная.</li>
         </ul></div>
@@ -862,7 +865,7 @@ if (mode == MODE_ARMING) {
           <li>Над графиком симулятора видно текущий режим и сколько секунд осталось до включения охраны.</li>
         </ol></div>
         <div class="card trouble"><h4>Если не работает</h4><ul>
-          <li><b>Жёлтый не мигает.</b> Проверьте провод от D5 и резистор жёлтого светодиода на шине «−».</li>
+          <li><b>Жёлтый не мигает.</b> Проверьте провод от D5, резистор поперёк канавки и короткую ножку в верхней шине «−».</li>
           <li><b>Сирена включается сразу.</b> Убедитесь, что <code>armStart = now;</code> стоит внутри ветки, где режим становится <code>MODE_ARMING</code>.</li>
           <li><b>Сирена не выключается.</b> В ветке выключения должны быть <code>noTone(BUZZER)</code> и гашение всех трёх светодиодов.</li>
         </ul></div>
@@ -939,7 +942,7 @@ if (mode == MODE_ARMING) {
               <li><span class="q">4×</span>Светодиоды: 2 зелёных, жёлтый, красный</li>
               <li><span class="q">4×</span>Резисторы 220 Ом</li>
               <li><span class="q">1×</span>Пищалка</li>
-              <li><span class="q">10×</span>Провода «папа–папа»</li>
+              <li><span class="q">11×</span>Провода «папа–папа»</li>
             </ul>
           </div>
           <div class="learn">
@@ -1199,7 +1202,7 @@ void loop() {
           <p>Вариант «Пауза = значение» ещё проще: <code>delay(value)</code>, без <code>map()</code>.</p>
         </div>
         <div class="newlist">
-          <div><b>Детали</b><div class="chips"><span class="chip new">зелёный светодиод</span><span class="chip new">резистор 220 Ом</span><span class="chip new">1 провод</span></div></div>
+          <div><b>Детали</b><div class="chips"><span class="chip new">зелёный светодиод</span><span class="chip new">резистор 220 Ом</span><span class="chip new">2 провода</span></div></div>
           <div><b>Новое в коде</b><div class="chips"><span class="chip code new">map()</span><span class="chip code">delay(pause)</span></div></div>
         </div>
       </div>
@@ -1248,7 +1251,7 @@ void loop() {
         </ul></div>
       </div>
       <div class="task-details" data-task="2" hidden>
-        <div class="card wide"><h4>Сборка по шагам</h4><div class="assembly-slot"></div></div>
+        <div class="card wide"><h4>Сборка по шагам</h4><p class="muted">Резистор ставим со стороны плюса: поперёк канавки, между столбцом провода от D7 и столбцом длинной ножки. Короткая ножка (−) — сразу в верхнюю синюю шину. Перемычка справа соединяет нижнюю и верхнюю шины «−».</p><div class="assembly-slot"></div></div>
         <div class="card"><h4>Как работает код</h4><ol>
           <li>В начале каждого <code>loop()</code> читаем ручку и сразу считаем паузу: <code>map(value, 0, 1023, 50, 1000)</code>.</li>
           <li>Светодиод горит <code>pause</code> мс и столько же не горит. Чем больше пауза, тем медленнее мигание.</li>
@@ -1256,7 +1259,7 @@ void loop() {
           <li>Вариант «Пауза = значение»: <code>delay(value)</code> — пауза прямо пропорциональна повороту. Около нуля светодиод мигает так быстро, что кажется, будто он просто горит.</li>
         </ol></div>
         <div class="card trouble"><h4>Если не работает</h4><ul>
-          <li><b>Светодиод не горит.</b> Длинная ножка — в столбец с проводом от D7, резистор — от короткой ножки на шину «−».</li>
+          <li><b>Светодиод не горит.</b> Длинная ножка (+) — в столбец резистора, короткая (−) — в верхнюю шину «−». Проверьте перемычку между нижней и верхней шинами «−».</li>
           <li><b>Мигает всегда одинаково.</b> Проверьте, что в <code>delay()</code> стоит переменная <code>pause</code>, а не число.</li>
           <li><b>Реагирует с опозданием.</b> Так и должно быть при длинной паузе — см. пункт 3 слева.</li>
         </ul></div>
@@ -1266,7 +1269,7 @@ void loop() {
         </ul></div>
       </div>
       <div class="task-details" data-task="3" hidden>
-        <div class="card wide"><h4>Сборка по шагам</h4><p class="muted">Светодиоды стоят в ряд слева направо: LED1 → LED4. Провода идут от D7, D6, D5, D4 — так они не перекрещиваются.</p><div class="assembly-slot"></div></div>
+        <div class="card wide"><h4>Сборка по шагам</h4><p class="muted">Светодиоды стоят в ряд слева направо: LED1 → LED4. У каждого свой резистор со стороны плюса, короткие ножки — в верхней шине «−». Провода идут от D7, D6, D5, D4 — так они не перекрещиваются.</p><div class="assembly-slot"></div></div>
         <div class="card"><h4>Как работает код</h4><ol>
           <li>Четыре одинаковых блока <code>if … else</code>: каждый светодиод сравнивает значение со своим порогом — 200, 400, 600 или 800.</li>
           <li>Пороги идут по возрастанию, поэтому светодиоды загораются строго по очереди.</li>
@@ -1426,16 +1429,16 @@ void loop() {
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 const SKETCHES = {
-"Urok8_1_Migalka": "/*\n  Урок 8. Задание 1 — «Мигалка»\n\n  Собираем схему: пищалка + красный и синий светодиоды.\n  Светодиоды мигают по очереди, как маячки полицейской машины.\n  При включении пищалка коротко пикает — так проверяем,\n  что она подключена правильно.\n\n  Подключение:\n    красный светодиод → пин 7 (катод через 220 Ом на GND)\n    синий светодиод   → пин 6 (катод через 220 Ом на GND)\n    пищалка «+»       → пин 8, пищалка «−» → GND\n*/\n\n// Даём пинам понятные имена: так код легче читать и менять\nconst int RED_LED  = 7;    // красный светодиод\nconst int BLUE_LED = 6;    // синий светодиод\nconst int BUZZER   = 8;    // пищалка\n\nconst int BLINK_TIME = 300;   // сколько мс горит каждый цвет\n\nvoid setup() {\n  // Все три устройства — выходы: Arduino ими управляет\n  pinMode(RED_LED, OUTPUT);\n  pinMode(BLUE_LED, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n\n  // Проверка пищалки: короткий писк при включении\n  tone(BUZZER, 1000);   // звук частотой 1000 Гц\n  delay(200);           // звучит 0,2 секунды\n  noTone(BUZZER);       // выключаем звук\n}\n\nvoid loop() {\n  // Фаза 1: красный горит, синий погашен\n  digitalWrite(RED_LED, HIGH);\n  digitalWrite(BLUE_LED, LOW);\n  delay(BLINK_TIME);\n\n  // Фаза 2: синий горит, красный погашен\n  digitalWrite(RED_LED, LOW);\n  digitalWrite(BLUE_LED, HIGH);\n  delay(BLINK_TIME);\n}\n",
+"Urok8_1_Migalka": "/*\n  Урок 8. Задание 1 — «Мигалка»\n\n  Собираем схему: пищалка + красный и синий светодиоды.\n  Светодиоды мигают по очереди, как маячки полицейской машины.\n  При включении пищалка коротко пикает — так проверяем,\n  что она подключена правильно.\n\n  Подключение (резистор — со стороны плюса):\n    пин 7 → резистор 220 Ом → красный светодиод (длинная ножка +)\n    пин 6 → резистор 220 Ом → синий светодиод (длинная ножка +)\n    короткие ножки (−) светодиодов → GND\n    пищалка «+» → пин 8, пищалка «−» → GND\n*/\n\n// Даём пинам понятные имена: так код легче читать и менять\nconst int RED_LED  = 7;    // красный светодиод\nconst int BLUE_LED = 6;    // синий светодиод\nconst int BUZZER   = 8;    // пищалка\n\nconst int BLINK_TIME = 300;   // сколько мс горит каждый цвет\n\nvoid setup() {\n  // Все три устройства — выходы: Arduino ими управляет\n  pinMode(RED_LED, OUTPUT);\n  pinMode(BLUE_LED, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n\n  // Проверка пищалки: короткий писк при включении\n  tone(BUZZER, 1000);   // звук частотой 1000 Гц\n  delay(200);           // звучит 0,2 секунды\n  noTone(BUZZER);       // выключаем звук\n}\n\nvoid loop() {\n  // Фаза 1: красный горит, синий погашен\n  digitalWrite(RED_LED, HIGH);\n  digitalWrite(BLUE_LED, LOW);\n  delay(BLINK_TIME);\n\n  // Фаза 2: синий горит, красный погашен\n  digitalWrite(RED_LED, LOW);\n  digitalWrite(BLUE_LED, HIGH);\n  delay(BLINK_TIME);\n}\n",
 "Urok8_2_Sirena": "/*\n  Урок 8. Задание 2 — «Сирена»\n\n  Синхронизируем звук со светом. Каждая фаза сирены — это\n  свет И звук, которые меняются в один и тот же момент:\n    горит КРАСНЫЙ → звучит ВЫСОКИЙ тон\n    горит СИНИЙ   → звучит НИЗКИЙ тон\n\n  Схема та же, что в задании 1.\n*/\n\nconst int RED_LED  = 7;    // красный светодиод\nconst int BLUE_LED = 6;    // синий светодиод\nconst int BUZZER   = 8;    // пищалка\n\nconst int HIGH_TONE  = 1000;   // высокий тон, Гц\nconst int LOW_TONE   = 750;    // низкий тон, Гц\nconst int PHASE_TIME = 400;    // длительность одной фазы, мс\n\nvoid setup() {\n  pinMode(RED_LED, OUTPUT);\n  pinMode(BLUE_LED, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n}\n\nvoid loop() {\n  // Фаза 1: красный + высокий тон\n  digitalWrite(RED_LED, HIGH);\n  digitalWrite(BLUE_LED, LOW);\n  tone(BUZZER, HIGH_TONE);   // звук меняем сразу вместе со светом\n  delay(PHASE_TIME);         // держим фазу 0,4 секунды\n\n  // Фаза 2: синий + низкий тон\n  digitalWrite(RED_LED, LOW);\n  digitalWrite(BLUE_LED, HIGH);\n  tone(BUZZER, LOW_TONE);\n  delay(PHASE_TIME);\n}\n",
 "Urok8_2b_Sirena_Voy": "/*\n  Урок 8. Задание 2, вариант Б — сирена «вой»\n\n  Частота звука плавно растёт, а потом плавно падает:\n    звук растёт → горит красный\n    звук падает → горит синий\n  Плавность получаем циклом for: много маленьких шагов.\n\n  Схема та же, что в задании 1.\n*/\n\nconst int RED_LED  = 7;    // красный светодиод\nconst int BLUE_LED = 6;    // синий светодиод\nconst int BUZZER   = 8;    // пищалка\n\nconst int FREQ_LOW  = 600;    // самый низкий звук, Гц\nconst int FREQ_HIGH = 1500;   // самый высокий звук, Гц\nconst int STEP      = 10;     // на сколько Гц меняем звук за шаг\nconst int STEP_TIME = 5;      // длительность одного шага, мс\n\nvoid setup() {\n  pinMode(RED_LED, OUTPUT);\n  pinMode(BLUE_LED, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n}\n\nvoid loop() {\n  // Звук растёт — горит красный\n  digitalWrite(RED_LED, HIGH);\n  digitalWrite(BLUE_LED, LOW);\n  for (int freq = FREQ_LOW; freq <= FREQ_HIGH; freq = freq + STEP) {\n    tone(BUZZER, freq);   // чуть выше, чем на прошлом шаге\n    delay(STEP_TIME);\n  }\n\n  // Звук падает — горит синий\n  digitalWrite(RED_LED, LOW);\n  digitalWrite(BLUE_LED, HIGH);\n  for (int freq = FREQ_HIGH; freq >= FREQ_LOW; freq = freq - STEP) {\n    tone(BUZZER, freq);   // чуть ниже, чем на прошлом шаге\n    delay(STEP_TIME);\n  }\n}\n",
 "Urok8_3_Knopka_Ohrana": "/*\n  Урок 8. Задание 3 — кнопка режима «Охрана»\n\n  Нажали кнопку  → режим «Охрана» включён, работает сирена.\n  Нажали ещё раз → режим выключен, тишина.\n\n  Главное: в сирене больше НЕТ delay()! Вместо того чтобы\n  «спать», Arduino постоянно смотрит на часы millis() и\n  поэтому успевает проверять кнопку тысячи раз в секунду.\n\n  Подключение (добавилась кнопка):\n    кнопка: одна ножка → пин 2, другая → GND.\n    Резистор для кнопки не нужен — включим встроенный\n    подтягивающий резистор командой INPUT_PULLUP.\n*/\n\nconst int RED_LED  = 7;    // красный светодиод\nconst int BLUE_LED = 6;    // синий светодиод\nconst int BUZZER   = 8;    // пищалка\nconst int BUTTON   = 2;    // кнопка\n\nconst int HIGH_TONE  = 1000;   // высокий тон, Гц\nconst int LOW_TONE   = 750;    // низкий тон, Гц\nconst int PHASE_TIME = 400;    // длительность фазы сирены, мс\n\nbool guardOn = false;           // режим «Охрана»: true — включён\nbool redPhase = false;          // фаза сирены: true — красная\nunsigned long lastSwitch = 0;   // когда последний раз меняли фазу\nint lastButton = HIGH;          // состояние кнопки в прошлый раз\n\nvoid setup() {\n  pinMode(RED_LED, OUTPUT);\n  pinMode(BLUE_LED, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n  pinMode(BUTTON, INPUT_PULLUP);   // отпущена = HIGH, нажата = LOW\n\n  Serial.begin(9600);\n  Serial.println(\"Система готова. Нажмите кнопку.\");\n}\n\nvoid loop() {\n  unsigned long now = millis();   // мс с момента включения\n\n  // ===== 1. КНОПКА =====\n  int button = digitalRead(BUTTON);\n  if (button != lastButton) {       // кнопку нажали или отпустили\n    delay(50);                      // пережидаем дребезг контактов\n    if (button == LOW) {            // это было НАЖАТИЕ\n      guardOn = !guardOn;           // переключаем: вкл ↔ выкл\n      if (guardOn) {\n        Serial.println(\"Охрана ВКЛЮЧЕНА\");\n      } else {\n        Serial.println(\"Охрана выключена\");\n        digitalWrite(RED_LED, LOW);   // гасим свет\n        digitalWrite(BLUE_LED, LOW);\n        noTone(BUZZER);               // и выключаем звук\n      }\n    }\n    lastButton = button;            // запоминаем состояние\n  }\n\n  // ===== 2. СИРЕНА (только в режиме «Охрана») =====\n  if (guardOn && now - lastSwitch >= PHASE_TIME) {  // пора?\n    lastSwitch = now;               // запоминаем время смены\n    redPhase = !redPhase;           // красная ↔ синяя\n    if (redPhase) {\n      digitalWrite(RED_LED, HIGH);  // красный + высокий тон\n      digitalWrite(BLUE_LED, LOW);\n      tone(BUZZER, HIGH_TONE);\n    } else {\n      digitalWrite(RED_LED, LOW);   // синий + низкий тон\n      digitalWrite(BLUE_LED, HIGH);\n      tone(BUZZER, LOW_TONE);\n    }\n  }\n}\n",
 "Urok8_3b_Oshibka_delay": "/*\n  Урок 8. Задание 3 — ПЛОХОЙ вариант (для сравнения!)\n\n  Здесь сирена сделана через delay(), как в задании 2.\n  Кнопка проверяется только в начале loop(), а потом\n  Arduino «спит» 400 + 400 мс и ничего не замечает.\n\n  Попробуйте быстро нажать кнопку, пока звучит сирена:\n  нажатие часто ТЕРЯЕТСЯ. Поэтому в задании 3 мы\n  используем millis() вместо delay().\n*/\n\nconst int RED_LED  = 7;\nconst int BLUE_LED = 6;\nconst int BUZZER   = 8;\nconst int BUTTON   = 2;\n\nconst int HIGH_TONE  = 1000;\nconst int LOW_TONE   = 750;\nconst int PHASE_TIME = 400;\n\nbool guardOn = false;\nint lastButton = HIGH;\n\nvoid setup() {\n  pinMode(RED_LED, OUTPUT);\n  pinMode(BLUE_LED, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n  pinMode(BUTTON, INPUT_PULLUP);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  // Кнопку проверяем ТОЛЬКО здесь — раз в 0,8 секунды!\n  int button = digitalRead(BUTTON);\n  if (button != lastButton) {\n    delay(50);\n    if (button == LOW) {\n      guardOn = !guardOn;\n      if (guardOn) {\n        Serial.println(\"Охрана ВКЛЮЧЕНА\");\n      } else {\n        Serial.println(\"Охрана выключена\");\n      }\n    }\n    lastButton = button;\n  }\n\n  if (guardOn) {\n    digitalWrite(RED_LED, HIGH);\n    digitalWrite(BLUE_LED, LOW);\n    tone(BUZZER, HIGH_TONE);\n    delay(PHASE_TIME);     // ← 400 мс кнопка НЕ проверяется\n\n    digitalWrite(RED_LED, LOW);\n    digitalWrite(BLUE_LED, HIGH);\n    tone(BUZZER, LOW_TONE);\n    delay(PHASE_TIME);     // ← и ещё 400 мс тоже\n  } else {\n    digitalWrite(RED_LED, LOW);\n    digitalWrite(BLUE_LED, LOW);\n    noTone(BUZZER);\n  }\n}\n",
-"Urok8_4_Zaderzhka_5s": "/*\n  Урок 8. Задание 4 — 5 секунд на выход\n\n  Как у настоящей сигнализации: после нажатия кнопки у\n  хозяина есть 5 секунд, чтобы выйти. Всё это время мигает\n  ЖЁЛТЫЙ светодиод и тикает пищалка. Потом включается сирена.\n  Нажатие кнопки в любой момент — всё выключает.\n\n  У системы три РЕЖИМА (состояния):\n    MODE_OFF    — выключено\n    MODE_ARMING — постановка на охрану: мигает жёлтый\n    MODE_GUARD  — охрана включена: работает сирена\n\n  Подключение (добавился жёлтый светодиод):\n    жёлтый светодиод → пин 5 (катод через 220 Ом на GND)\n*/\n\nconst int RED_LED    = 7;    // красный светодиод\nconst int BLUE_LED   = 6;    // синий светодиод\nconst int YELLOW_LED = 5;    // жёлтый светодиод\nconst int BUZZER     = 8;    // пищалка\nconst int BUTTON     = 2;    // кнопка\n\nconst int HIGH_TONE  = 1000;   // тоны сирены, Гц\nconst int LOW_TONE   = 750;\nconst int TICK_TONE  = 2000;   // «тик» во время отсчёта, Гц\nconst int PHASE_TIME = 400;    // фаза сирены, мс\nconst int BLINK_TIME = 250;    // жёлтый: 250 мс вкл, 250 мс выкл\nconst unsigned long ARM_TIME = 5000;   // время на выход: 5 с\n\n// Номера режимов\nconst int MODE_OFF    = 0;\nconst int MODE_ARMING = 1;\nconst int MODE_GUARD  = 2;\n\nint mode = MODE_OFF;            // текущий режим\nunsigned long armStart = 0;     // когда начался отсчёт 5 секунд\nunsigned long lastSwitch = 0;   // когда последний раз мигнули\nbool lightOn = false;           // фаза мигания\nint lastButton = HIGH;          // состояние кнопки в прошлый раз\n\nvoid setup() {\n  pinMode(RED_LED, OUTPUT);\n  pinMode(BLUE_LED, OUTPUT);\n  pinMode(YELLOW_LED, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n  pinMode(BUTTON, INPUT_PULLUP);   // отпущена = HIGH, нажата = LOW\n\n  Serial.begin(9600);\n  Serial.println(\"Система готова. Нажмите кнопку.\");\n}\n\nvoid loop() {\n  unsigned long now = millis();\n\n  // ===== 1. КНОПКА: меняем режим =====\n  int button = digitalRead(BUTTON);\n  if (button != lastButton) {\n    delay(50);                        // пережидаем дребезг\n    if (button == LOW) {              // нажатие\n      if (mode == MODE_OFF) {\n        mode = MODE_ARMING;           // начинаем отсчёт\n        armStart = now;               // засекаем время\n        Serial.println(\"Постановка на охрану: 5 секунд...\");\n      } else {\n        mode = MODE_OFF;              // из любого режима — выкл\n        Serial.println(\"Охрана выключена\");\n        digitalWrite(RED_LED, LOW);\n        digitalWrite(BLUE_LED, LOW);\n        digitalWrite(YELLOW_LED, LOW);\n        noTone(BUZZER);\n        lightOn = false;\n      }\n    }\n    lastButton = button;\n  }\n\n  // ===== 2. ПОСТАНОВКА НА ОХРАНУ: мигает жёлтый =====\n  if (mode == MODE_ARMING) {\n    if (now - lastSwitch >= BLINK_TIME) {   // пора мигнуть\n      lastSwitch = now;\n      lightOn = !lightOn;\n      digitalWrite(YELLOW_LED, lightOn);   // true=HIGH, false=LOW\n      if (lightOn) {\n        tone(BUZZER, TICK_TONE, 30);  // короткий «тик» со вспышкой\n      }\n    }\n    if (now - armStart >= ARM_TIME) {      // прошло 5 секунд?\n      mode = MODE_GUARD;\n      digitalWrite(YELLOW_LED, LOW);\n      Serial.println(\"ОХРАНА ВКЛЮЧЕНА!\");\n    }\n  }\n\n  // ===== 3. ОХРАНА: работает сирена =====\n  if (mode == MODE_GUARD && now - lastSwitch >= PHASE_TIME) {\n    lastSwitch = now;\n    lightOn = !lightOn;\n    if (lightOn) {\n      digitalWrite(RED_LED, HIGH);    // красный + высокий тон\n      digitalWrite(BLUE_LED, LOW);\n      tone(BUZZER, HIGH_TONE);\n    } else {\n      digitalWrite(RED_LED, LOW);     // синий + низкий тон\n      digitalWrite(BLUE_LED, HIGH);\n      tone(BUZZER, LOW_TONE);\n    }\n  }\n}\n",
+"Urok8_4_Zaderzhka_5s": "/*\n  Урок 8. Задание 4 — 5 секунд на выход\n\n  Как у настоящей сигнализации: после нажатия кнопки у\n  хозяина есть 5 секунд, чтобы выйти. Всё это время мигает\n  ЖЁЛТЫЙ светодиод и тикает пищалка. Потом включается сирена.\n  Нажатие кнопки в любой момент — всё выключает.\n\n  У системы три РЕЖИМА (состояния):\n    MODE_OFF    — выключено\n    MODE_ARMING — постановка на охрану: мигает жёлтый\n    MODE_GUARD  — охрана включена: работает сирена\n\n  Подключение (добавился жёлтый светодиод):\n    пин 5 → резистор 220 Ом → длинная ножка (+),\n    короткая ножка (−) → GND\n*/\n\nconst int RED_LED    = 7;    // красный светодиод\nconst int BLUE_LED   = 6;    // синий светодиод\nconst int YELLOW_LED = 5;    // жёлтый светодиод\nconst int BUZZER     = 8;    // пищалка\nconst int BUTTON     = 2;    // кнопка\n\nconst int HIGH_TONE  = 1000;   // тоны сирены, Гц\nconst int LOW_TONE   = 750;\nconst int TICK_TONE  = 2000;   // «тик» во время отсчёта, Гц\nconst int PHASE_TIME = 400;    // фаза сирены, мс\nconst int BLINK_TIME = 250;    // жёлтый: 250 мс вкл, 250 мс выкл\nconst unsigned long ARM_TIME = 5000;   // время на выход: 5 с\n\n// Номера режимов\nconst int MODE_OFF    = 0;\nconst int MODE_ARMING = 1;\nconst int MODE_GUARD  = 2;\n\nint mode = MODE_OFF;            // текущий режим\nunsigned long armStart = 0;     // когда начался отсчёт 5 секунд\nunsigned long lastSwitch = 0;   // когда последний раз мигнули\nbool lightOn = false;           // фаза мигания\nint lastButton = HIGH;          // состояние кнопки в прошлый раз\n\nvoid setup() {\n  pinMode(RED_LED, OUTPUT);\n  pinMode(BLUE_LED, OUTPUT);\n  pinMode(YELLOW_LED, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n  pinMode(BUTTON, INPUT_PULLUP);   // отпущена = HIGH, нажата = LOW\n\n  Serial.begin(9600);\n  Serial.println(\"Система готова. Нажмите кнопку.\");\n}\n\nvoid loop() {\n  unsigned long now = millis();\n\n  // ===== 1. КНОПКА: меняем режим =====\n  int button = digitalRead(BUTTON);\n  if (button != lastButton) {\n    delay(50);                        // пережидаем дребезг\n    if (button == LOW) {              // нажатие\n      if (mode == MODE_OFF) {\n        mode = MODE_ARMING;           // начинаем отсчёт\n        armStart = now;               // засекаем время\n        Serial.println(\"Постановка на охрану: 5 секунд...\");\n      } else {\n        mode = MODE_OFF;              // из любого режима — выкл\n        Serial.println(\"Охрана выключена\");\n        digitalWrite(RED_LED, LOW);\n        digitalWrite(BLUE_LED, LOW);\n        digitalWrite(YELLOW_LED, LOW);\n        noTone(BUZZER);\n        lightOn = false;\n      }\n    }\n    lastButton = button;\n  }\n\n  // ===== 2. ПОСТАНОВКА НА ОХРАНУ: мигает жёлтый =====\n  if (mode == MODE_ARMING) {\n    if (now - lastSwitch >= BLINK_TIME) {   // пора мигнуть\n      lastSwitch = now;\n      lightOn = !lightOn;\n      digitalWrite(YELLOW_LED, lightOn);   // true=HIGH, false=LOW\n      if (lightOn) {\n        tone(BUZZER, TICK_TONE, 30);  // короткий «тик» со вспышкой\n      }\n    }\n    if (now - armStart >= ARM_TIME) {      // прошло 5 секунд?\n      mode = MODE_GUARD;\n      digitalWrite(YELLOW_LED, LOW);\n      Serial.println(\"ОХРАНА ВКЛЮЧЕНА!\");\n    }\n  }\n\n  // ===== 3. ОХРАНА: работает сирена =====\n  if (mode == MODE_GUARD && now - lastSwitch >= PHASE_TIME) {\n    lastSwitch = now;\n    lightOn = !lightOn;\n    if (lightOn) {\n      digitalWrite(RED_LED, HIGH);    // красный + высокий тон\n      digitalWrite(BLUE_LED, LOW);\n      tone(BUZZER, HIGH_TONE);\n    } else {\n      digitalWrite(RED_LED, LOW);     // синий + низкий тон\n      digitalWrite(BLUE_LED, HIGH);\n      tone(BUZZER, LOW_TONE);\n    }\n  }\n}\n",
 "Urok9_1_Potenciometr": "/*\n  Урок 9. Задание 1 — читаем потенциометр\n\n  Потенциометр — это делитель напряжения. Крутим ручку —\n  напряжение на среднем выводе меняется от 0 до 5 вольт.\n  Arduino измеряет его и превращает в число от 0 до 1023.\n\n  Подключение:\n    левый вывод потенциометра  → GND\n    средний вывод (движок)     → A0\n    правый вывод               → 5V\n\n  После загрузки откройте «Монитор порта» (Serial Monitor)\n  и выберите скорость 9600 бод.\n*/\n\nconst int POT = A0;   // потенциометр на аналоговом входе A0\n\nvoid setup() {\n  Serial.begin(9600);   // связь с компьютером, 9600 бод\n  // pinMode для analogRead писать не нужно\n}\n\nvoid loop() {\n  int value = analogRead(POT);            // число от 0 до 1023\n  float voltage = value * 5.0 / 1023.0;   // переводим в вольты\n\n  Serial.print(\"Значение: \");\n  Serial.print(value);\n  Serial.print(\"   Напряжение: \");\n  Serial.print(voltage);       // float: 2 знака после точки\n  Serial.println(\" В\");\n\n  delay(200);   // 5 измерений в секунду — успеваем читать\n}\n",
-"Urok9_2_Skorost_Miganiya": "/*\n  Урок 9. Задание 2 — скорость мигания от ручки\n\n  Чем дальше повернули ручку, тем ДЛИННЕЕ пауза delay()\n  и тем медленнее мигает светодиод.\n  Функция map() пересчитывает число 0…1023 в паузу 50…1000 мс.\n\n  Подключение (добавился светодиод):\n    светодиод → пин 7 (катод через 220 Ом на GND)\n*/\n\nconst int POT = A0;   // потенциометр\nconst int LED = 7;    // светодиод\n\nvoid setup() {\n  pinMode(LED, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int value = analogRead(POT);                 // 0…1023\n  int pause = map(value, 0, 1023, 50, 1000);   // 50…1000 мс\n\n  Serial.print(\"Значение: \");\n  Serial.print(value);\n  Serial.print(\"   Пауза: \");\n  Serial.print(pause);\n  Serial.println(\" мс\");\n\n  digitalWrite(LED, HIGH);   // включили\n  delay(pause);              // ждём\n  digitalWrite(LED, LOW);    // выключили\n  delay(pause);              // снова ждём\n}\n",
+"Urok9_2_Skorost_Miganiya": "/*\n  Урок 9. Задание 2 — скорость мигания от ручки\n\n  Чем дальше повернули ручку, тем ДЛИННЕЕ пауза delay()\n  и тем медленнее мигает светодиод.\n  Функция map() пересчитывает число 0…1023 в паузу 50…1000 мс.\n\n  Подключение (добавился светодиод):\n    пин 7 → резистор 220 Ом → длинная ножка (+),\n    короткая ножка (−) → GND\n*/\n\nconst int POT = A0;   // потенциометр\nconst int LED = 7;    // светодиод\n\nvoid setup() {\n  pinMode(LED, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int value = analogRead(POT);                 // 0…1023\n  int pause = map(value, 0, 1023, 50, 1000);   // 50…1000 мс\n\n  Serial.print(\"Значение: \");\n  Serial.print(value);\n  Serial.print(\"   Пауза: \");\n  Serial.print(pause);\n  Serial.println(\" мс\");\n\n  digitalWrite(LED, HIGH);   // включили\n  delay(pause);              // ждём\n  digitalWrite(LED, LOW);    // выключили\n  delay(pause);              // снова ждём\n}\n",
 "Urok9_2b_Prostoy_delay": "/*\n  Урок 9. Задание 2, вариант Б — самый простой\n\n  Пауза в миллисекундах просто равна числу с потенциометра\n  (0…1023 мс). Это и есть «пропорционально»: повернули ручку\n  в 2 раза дальше — пауза стала в 2 раза длиннее.\n\n  Минус: около нуля светодиод мигает так быстро, что глаз\n  не успевает — кажется, будто он просто горит.\n*/\n\nconst int POT = A0;   // потенциометр\nconst int LED = 7;    // светодиод\n\nvoid setup() {\n  pinMode(LED, OUTPUT);\n}\n\nvoid loop() {\n  int value = analogRead(POT);   // 0…1023\n  digitalWrite(LED, HIGH);\n  delay(value);                  // пауза = значение, мс\n  digitalWrite(LED, LOW);\n  delay(value);\n}\n",
-"Urok9_3_Shkala": "/*\n  Урок 9. Задание 3 — светодиодная шкала\n\n  Четыре светодиода загораются по очереди, когда крутим ручку.\n  У каждого светодиода свой ПОРОГ: он горит, если значение\n  с потенциометра больше этого порога.\n\n    значение: 0 … 200 … 400 … 600 … 800 … 1023\n    горят:       0     1     2     3     4\n\n  Подключение (у каждого светодиода катод через 220 Ом на GND):\n    LED1 зелёный → пин 7      LED3 жёлтый  → пин 5\n    LED2 зелёный → пин 6      LED4 красный → пин 4\n*/\n\nconst int POT  = A0;   // потенциометр\nconst int LED1 = 7;    // зелёный\nconst int LED2 = 6;    // зелёный\nconst int LED3 = 5;    // жёлтый\nconst int LED4 = 4;    // красный\n\nvoid setup() {\n  pinMode(LED1, OUTPUT);\n  pinMode(LED2, OUTPUT);\n  pinMode(LED3, OUTPUT);\n  pinMode(LED4, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int value = analogRead(POT);   // 0…1023\n  Serial.println(value);\n\n  // LED1 горит, если значение больше 200\n  if (value > 200) {\n    digitalWrite(LED1, HIGH);\n  } else {\n    digitalWrite(LED1, LOW);\n  }\n\n  // LED2 — порог 400\n  if (value > 400) {\n    digitalWrite(LED2, HIGH);\n  } else {\n    digitalWrite(LED2, LOW);\n  }\n\n  // LED3 — порог 600\n  if (value > 600) {\n    digitalWrite(LED3, HIGH);\n  } else {\n    digitalWrite(LED3, LOW);\n  }\n\n  // LED4 — порог 800\n  if (value > 800) {\n    digitalWrite(LED4, HIGH);\n  } else {\n    digitalWrite(LED4, LOW);\n  }\n\n  delay(50);   // 20 обновлений в секунду\n}\n",
+"Urok9_3_Shkala": "/*\n  Урок 9. Задание 3 — светодиодная шкала\n\n  Четыре светодиода загораются по очереди, когда крутим ручку.\n  У каждого светодиода свой ПОРОГ: он горит, если значение\n  с потенциометра больше этого порога.\n\n    значение: 0 … 200 … 400 … 600 … 800 … 1023\n    горят:       0     1     2     3     4\n\n  Подключение: пин → резистор 220 Ом → длинная ножка (+),\n  короткая ножка (−) → GND. У каждого светодиода свой резистор.\n    LED1 зелёный → пин 7      LED3 жёлтый  → пин 5\n    LED2 зелёный → пин 6      LED4 красный → пин 4\n*/\n\nconst int POT  = A0;   // потенциометр\nconst int LED1 = 7;    // зелёный\nconst int LED2 = 6;    // зелёный\nconst int LED3 = 5;    // жёлтый\nconst int LED4 = 4;    // красный\n\nvoid setup() {\n  pinMode(LED1, OUTPUT);\n  pinMode(LED2, OUTPUT);\n  pinMode(LED3, OUTPUT);\n  pinMode(LED4, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int value = analogRead(POT);   // 0…1023\n  Serial.println(value);\n\n  // LED1 горит, если значение больше 200\n  if (value > 200) {\n    digitalWrite(LED1, HIGH);\n  } else {\n    digitalWrite(LED1, LOW);\n  }\n\n  // LED2 — порог 400\n  if (value > 400) {\n    digitalWrite(LED2, HIGH);\n  } else {\n    digitalWrite(LED2, LOW);\n  }\n\n  // LED3 — порог 600\n  if (value > 600) {\n    digitalWrite(LED3, HIGH);\n  } else {\n    digitalWrite(LED3, LOW);\n  }\n\n  // LED4 — порог 800\n  if (value > 800) {\n    digitalWrite(LED4, HIGH);\n  } else {\n    digitalWrite(LED4, LOW);\n  }\n\n  delay(50);   // 20 обновлений в секунду\n}\n",
 "Urok9_3b_Shkala_Massiv": "/*\n  Урок 9. Задание 3, вариант Б — шкала с массивом и циклом\n\n  То же самое, но короче. Пины светодиодов храним в МАССИВЕ,\n  а функция map() сразу считает, сколько светодиодов зажечь.\n  Так легко сделать шкалу хоть из 10 светодиодов.\n\n  Схема та же, что в задании 3.\n*/\n\nconst int POT = A0;                  // потенциометр\nconst int LEDS[4] = {7, 6, 5, 4};    // пины: от первого к четвёртому\n\nvoid setup() {\n  for (int i = 0; i < 4; i++) {\n    pinMode(LEDS[i], OUTPUT);        // каждый пин из массива — выход\n  }\n}\n\nvoid loop() {\n  int value = analogRead(POT);             // 0…1023\n  int level = map(value, 0, 1023, 0, 5);   // 5 зон: 0, 1, 2, 3, 4\n  // (level = 5 бывает только при 1023 — тогда тоже горят все)\n\n  for (int i = 0; i < 4; i++) {\n    if (i < level) {\n      digitalWrite(LEDS[i], HIGH);   // «ниже уровня» — горит\n    } else {\n      digitalWrite(LEDS[i], LOW);    // остальные погашены\n    }\n  }\n\n  delay(50);\n}\n",
 "Urok9_4_Avariya": "/*\n  Урок 9. Задание 4 — аварийный сигнал\n\n  Шкала работает как в задании 3. Если повернуть ручку почти\n  до упора (значение больше 1000), включается АВАРИЙНЫЙ\n  сигнал: пищалка часто и прерывисто пищит.\n\n  Подключение (добавилась пищалка):\n    пищалка «+» → пин 8, пищалка «−» → GND\n*/\n\nconst int POT    = A0;   // потенциометр\nconst int LED1   = 7;    // зелёный\nconst int LED2   = 6;    // зелёный\nconst int LED3   = 5;    // жёлтый\nconst int LED4   = 4;    // красный\nconst int BUZZER = 8;    // пищалка\n\nconst int ALARM_LEVEL = 1000;   // порог аварии (максимум 1023)\nconst int ALARM_TONE  = 2500;   // частота аварийного писка, Гц\n\nvoid setup() {\n  pinMode(LED1, OUTPUT);\n  pinMode(LED2, OUTPUT);\n  pinMode(LED3, OUTPUT);\n  pinMode(LED4, OUTPUT);\n  pinMode(BUZZER, OUTPUT);\n  Serial.begin(9600);\n}\n\nvoid loop() {\n  int value = analogRead(POT);   // 0…1023\n\n  // ----- Шкала (как в задании 3) -----\n  if (value > 200) {\n    digitalWrite(LED1, HIGH);\n  } else {\n    digitalWrite(LED1, LOW);\n  }\n  if (value > 400) {\n    digitalWrite(LED2, HIGH);\n  } else {\n    digitalWrite(LED2, LOW);\n  }\n  if (value > 600) {\n    digitalWrite(LED3, HIGH);\n  } else {\n    digitalWrite(LED3, LOW);\n  }\n  if (value > 800) {\n    digitalWrite(LED4, HIGH);\n  } else {\n    digitalWrite(LED4, LOW);\n  }\n\n  // ----- Авария: ручка почти на максимуме -----\n  if (value > ALARM_LEVEL) {\n    Serial.print(\"АВАРИЯ! Значение: \");\n    Serial.println(value);\n    tone(BUZZER, ALARM_TONE);   // писк…\n    delay(100);\n    noTone(BUZZER);             // …пауза\n    delay(100);\n  } else {\n    noTone(BUZZER);             // всё в норме — тишина\n    delay(50);\n  }\n}\n"
 };
@@ -1753,16 +1756,17 @@ const Circuit = (() => {
       ax: -5.5, ay: 26,
       parts: [
         { id: 'buz', type: 'buzzer', task: 1, pin: 'D8', plus: 'G2', minus: 'G5', name: 'Пищалка', ref: 'HA1' },
-        { id: 'ledR', type: 'led', task: 1, color: 'red', pin: 'D7', anode: 'G10', cathode: 'G9', name: 'Красный светодиод', ref: 'HL1' },
-        { id: 'r1', type: 'resistor', task: 1, a: 'H9', b: 'B-9', name: 'Резистор 220 Ом', ref: 'R1', ohms: 220 },
-        { id: 'ledB', type: 'led', task: 1, color: 'blue', pin: 'D6', anode: 'G14', cathode: 'G13', name: 'Синий светодиод', ref: 'HL2' },
-        { id: 'r2', type: 'resistor', task: 1, a: 'H13', b: 'B-13', name: 'Резистор 220 Ом', ref: 'R2', ohms: 220 },
+        { id: 'ledR', type: 'led', task: 1, color: 'red', pin: 'D7', anode: 'A10', cathode: 'T-9', name: 'Красный светодиод', ref: 'HL1' },
+        { id: 'r1', type: 'resistor', task: 1, a: 'E10', b: 'F10', name: 'Резистор 220 Ом', ref: 'R1', ohms: 220 },
+        { id: 'ledB', type: 'led', task: 1, color: 'blue', pin: 'D6', anode: 'A14', cathode: 'T-13', name: 'Синий светодиод', ref: 'HL2' },
+        { id: 'r2', type: 'resistor', task: 1, a: 'E14', b: 'F14', name: 'Резистор 220 Ом', ref: 'R2', ohms: 220 },
         { id: 'btn', type: 'button', task: 3, pin: 'D2', col: 21, name: 'Кнопка', ref: 'SB1' },
-        { id: 'ledY', type: 'led', task: 4, color: 'yellow', pin: 'D5', anode: 'G18', cathode: 'G17', name: 'Жёлтый светодиод', ref: 'HL3' },
-        { id: 'r3', type: 'resistor', task: 4, a: 'H17', b: 'B-17', name: 'Резистор 220 Ом', ref: 'R3', ohms: 220 },
+        { id: 'ledY', type: 'led', task: 4, color: 'yellow', pin: 'D5', anode: 'A18', cathode: 'T-17', name: 'Жёлтый светодиод', ref: 'HL3' },
+        { id: 'r3', type: 'resistor', task: 4, a: 'E18', b: 'F18', name: 'Резистор 220 Ом', ref: 'R3', ohms: 220 },
       ],
       wires: [
         { from: 'GND', to: 'B-1', color: 'black', task: 1 },
+        { from: 'B-29', to: 'T-29', color: 'black', task: 1 },   // перемычка: нижняя шина «−» → верхняя
         { from: 'D8', to: 'J2', color: 'purple', task: 1 },
         { from: 'J5', to: 'B-5', color: 'black', task: 1 },
         { from: 'D7', to: 'J10', color: 'orange', task: 1 },
@@ -1774,9 +1778,9 @@ const Circuit = (() => {
       // Принципиальная схема: строки «пин → детали → GND»
       schematic: [
         { pin: 'D8', chain: ['buz'] },
-        { pin: 'D7', chain: ['ledR', 'r1'] },
-        { pin: 'D6', chain: ['ledB', 'r2'] },
-        { pin: 'D5', chain: ['ledY', 'r3'] },
+        { pin: 'D7', chain: ['r1', 'ledR'] },
+        { pin: 'D6', chain: ['r2', 'ledB'] },
+        { pin: 'D5', chain: ['r3', 'ledY'] },
         { pin: 'D2', chain: ['btn'] },
       ],
     },
@@ -1784,14 +1788,14 @@ const Circuit = (() => {
       ax: -7, ay: 26,
       parts: [
         { id: 'pot', type: 'pot', task: 1, pin: 'A0', col: 22, name: 'Потенциометр 10 кОм', ref: 'R5' },
-        { id: 'led1', type: 'led', task: 2, color: 'green', pin: 'D7', anode: 'G9', cathode: 'G8', name: 'LED1 зелёный', ref: 'HL1' },
-        { id: 'r1', type: 'resistor', task: 2, a: 'H8', b: 'B-8', name: 'Резистор 220 Ом', ref: 'R1', ohms: 220 },
-        { id: 'led2', type: 'led', task: 3, color: 'green', pin: 'D6', anode: 'G12', cathode: 'G11', name: 'LED2 зелёный', ref: 'HL2' },
-        { id: 'r2', type: 'resistor', task: 3, a: 'H11', b: 'B-11', name: 'Резистор 220 Ом', ref: 'R2', ohms: 220 },
-        { id: 'led3', type: 'led', task: 3, color: 'yellow', pin: 'D5', anode: 'G15', cathode: 'G14', name: 'LED3 жёлтый', ref: 'HL3' },
-        { id: 'r3', type: 'resistor', task: 3, a: 'H14', b: 'B-14', name: 'Резистор 220 Ом', ref: 'R3', ohms: 220 },
-        { id: 'led4', type: 'led', task: 3, color: 'red', pin: 'D4', anode: 'G18', cathode: 'G17', name: 'LED4 красный', ref: 'HL4' },
-        { id: 'r4', type: 'resistor', task: 3, a: 'H17', b: 'B-17', name: 'Резистор 220 Ом', ref: 'R4', ohms: 220 },
+        { id: 'led1', type: 'led', task: 2, color: 'green', pin: 'D7', anode: 'A9', cathode: 'T-8', name: 'LED1 зелёный', ref: 'HL1' },
+        { id: 'r1', type: 'resistor', task: 2, a: 'E9', b: 'F9', name: 'Резистор 220 Ом', ref: 'R1', ohms: 220 },
+        { id: 'led2', type: 'led', task: 3, color: 'green', pin: 'D6', anode: 'A12', cathode: 'T-11', name: 'LED2 зелёный', ref: 'HL2' },
+        { id: 'r2', type: 'resistor', task: 3, a: 'E12', b: 'F12', name: 'Резистор 220 Ом', ref: 'R2', ohms: 220 },
+        { id: 'led3', type: 'led', task: 3, color: 'yellow', pin: 'D5', anode: 'A15', cathode: 'T-14', name: 'LED3 жёлтый', ref: 'HL3' },
+        { id: 'r3', type: 'resistor', task: 3, a: 'E15', b: 'F15', name: 'Резистор 220 Ом', ref: 'R3', ohms: 220 },
+        { id: 'led4', type: 'led', task: 3, color: 'red', pin: 'D4', anode: 'A18', cathode: 'T-17', name: 'LED4 красный', ref: 'HL4' },
+        { id: 'r4', type: 'resistor', task: 3, a: 'E18', b: 'F18', name: 'Резистор 220 Ом', ref: 'R4', ohms: 220 },
         { id: 'buz', type: 'buzzer', task: 4, pin: 'D8', plus: 'G2', minus: 'G5', name: 'Пищалка', ref: 'HA1' },
       ],
       wires: [
@@ -1800,6 +1804,7 @@ const Circuit = (() => {
         { from: 'A0', to: 'J24', color: 'blue', task: 1, around: 1 },
         { from: '5V', to: 'J26', color: 'red', task: 1, around: 2 },
         { from: 'D7', to: 'J9', color: 'green', task: 2 },
+        { from: 'B-29', to: 'T-29', color: 'black', task: 2 },   // перемычка: нижняя шина «−» → верхняя
         { from: 'D6', to: 'J12', color: 'teal', task: 3 },
         { from: 'D5', to: 'J15', color: 'yellow', task: 3 },
         { from: 'D4', to: 'J18', color: 'orange', task: 3 },
@@ -1808,10 +1813,10 @@ const Circuit = (() => {
       ],
       schematic: [
         { pot: 'pot' },
-        { pin: 'D7', chain: ['led1', 'r1'] },
-        { pin: 'D6', chain: ['led2', 'r2'] },
-        { pin: 'D5', chain: ['led3', 'r3'] },
-        { pin: 'D4', chain: ['led4', 'r4'] },
+        { pin: 'D7', chain: ['r1', 'led1'] },
+        { pin: 'D6', chain: ['r2', 'led2'] },
+        { pin: 'D5', chain: ['r3', 'led3'] },
+        { pin: 'D4', chain: ['r4', 'led4'] },
         { pin: 'D8', chain: ['buz'] },
       ],
     },
@@ -1984,33 +1989,40 @@ const Board2D = (() => {
   }
 
   // ---------- Детали ----------
+  // Светодиод «сбоку», как в Fritzing. Корпус стоит над ближним к нему отверстием:
+  // короткая ножка (−) идёт в шину, длинная (+) с изгибом — в ряд платы.
+  // Ножки проходят между отверстиями шин, чтобы не казалось, что они туда вставлены.
   function ledSVG(p, P) {
     const a = hole(p.anode), c = hole(p.cathode);
-    const cx = (a.x + c.x) / 2, base = a.y, dir = Math.sign(a.x - c.x);
-    const col = LED_COLORS[p.color];
-    const y0 = base - 1.3, yf = y0 - 0.32, yt = yf - 1.6;
+    const dir = Math.sign(a.x - c.x) || 1;
+    const col = LED_COLORS[p.color], leg = 'stroke="#a2a8ad" stroke-width="0.17" fill="none" stroke-linejoin="round"';
+    const cx = (a.x + c.x) / 2 + (a.y === c.y ? 0 : dir * 0.5);
+    const y0 = Math.min(a.y, c.y) - 1.3, yf = y0 - 0.32, yt = yf - 1.6;
+    const kx = cx - dir * 0.5, ax = cx + dir * 0.5;          // где ножки выходят из корпуса
     const flatEdge = cx - dir * 1.0, roundEdge = cx + dir * 1.15;
     return `<g class="part led" data-part="${p.id}">
-      <circle class="led-glow" cx="${cx}" cy="${yt}" r="4.2" fill="url(#${P}glow-${p.color})" opacity="0"/>
-      <path d="M${c.x},${base} V${y0}" stroke="#a2a8ad" stroke-width="0.17" fill="none"/>
-      <path d="M${a.x},${base} V${base - 0.5} L${a.x + dir * 0.32},${base - 0.8} L${a.x},${base - 1.1} V${y0}" stroke="#a2a8ad" stroke-width="0.17" fill="none" stroke-linejoin="round"/>
+      <circle class="led-glow" cx="${cx}" cy="${yt}" r="3.6" fill="url(#${P}glow-${p.color})" opacity="0"/>
+      <path d="M${c.x},${c.y} L${kx},${c.y - 0.5} V${y0}" ${leg}/>
+      <path d="M${a.x},${a.y} V${a.y - 0.65} L${ax},${a.y - 1.25} V${y0}" ${leg}/>
+      <circle cx="${c.x}" cy="${c.y}" r="0.17" fill="#5d6469"/><circle cx="${a.x}" cy="${a.y}" r="0.17" fill="#5d6469"/>
       <rect x="${Math.min(flatEdge, roundEdge)}" y="${yf}" width="${Math.abs(roundEdge - flatEdge)}" height="0.32" rx="0.05" fill="${col}" fill-opacity="0.75"/>
       <path class="led-body" d="M${cx - 1},${yf} V${yt} A1,1 0 0 1 ${cx + 1},${yt} V${yf} Z" fill="${col}" fill-opacity="0.55" stroke="${col}" stroke-width="0.08"/>
       <path class="led-core" d="M${cx - 0.55},${yf} V${yt} A0.55,0.55 0 0 1 ${cx + 0.55},${yt} V${yf} Z" fill="#fff" opacity="0"/>
       <path d="M${cx - 0.62},${yf - 0.2} V${yt - 0.1}" stroke="#fff" stroke-opacity="0.55" stroke-width="0.16" stroke-linecap="round"/>
-      <text x="${a.x + dir * 0.7}" y="${base - 0.45}" font-size="0.55" fill="#c0392b" text-anchor="middle" font-family="Arial" font-weight="700">+</text>
+      <text x="${a.x + dir * 1.0}" y="${a.y - 0.62}" font-size="0.6" fill="#c0392b" text-anchor="middle" font-family="Arial" font-weight="700">+</text>
+      <text x="${c.x - dir * 0.55}" y="${c.y - 0.42}" font-size="0.6" fill="#3a6fd8" text-anchor="middle" font-family="Arial" font-weight="700">−</text>
     </g>`;
   }
 
   function resistorSVG(p) {
     const a = hole(p.a), b = hole(p.b);
     const x = a.x, mid = (a.y + b.y) / 2;
-    const bands = ['#d1342b', '#d1342b', '#7a4a1e'];
+    const len = Math.min(2.6, Math.abs(b.y - a.y) - 0.6);   // корпус короче промежутка между ножками
+    const bands = [[-0.365, '#d1342b'], [-0.204, '#d1342b'], [-0.042, '#7a4a1e'], [0.262, '#c9a43a']];
     let s = `<g class="part resistor" data-part="${p.id}">
       <path d="M${x},${a.y} V${b.y}" stroke="#a2a8ad" stroke-width="0.16"/>
-      <rect x="${x - 0.5}" y="${mid - 1.3}" width="1" height="2.6" rx="0.48" fill="#dcc59e" stroke="#a78d63" stroke-width="0.07"/>`;
-    bands.forEach((c, i) => { s += `<rect x="${x - 0.5}" y="${f(mid - 0.95 + i * 0.42)}" width="1" height="0.22" fill="${c}"/>`; });
-    s += `<rect x="${x - 0.5}" y="${f(mid + 0.68)}" width="1" height="0.22" fill="#c9a43a"/>`;
+      <rect x="${x - 0.5}" y="${f(mid - len / 2)}" width="1" height="${f(len)}" rx="0.48" fill="#dcc59e" stroke="#a78d63" stroke-width="0.07"/>`;
+    for (const [k, c] of bands) s += `<rect x="${x - 0.5}" y="${f(mid + k * len)}" width="1" height="0.22" fill="${c}"/>`;
     return s + '</g>';
   }
 
@@ -2076,7 +2088,7 @@ const Board2D = (() => {
     const pts = Object.values(H);
     let x0 = Math.min(...pts.map(q => q.x)), x1 = Math.max(...pts.map(q => q.x));
     let y0 = Math.min(...pts.map(q => q.y)), y1 = Math.max(...pts.map(q => q.y));
-    if (p.type === 'led') { x0 -= 0.9; x1 += 0.9; y0 -= 4.3; }
+    if (p.type === 'led') { x0 -= 1.4; x1 += 1.4; y0 -= 4.3; }
     if (p.type === 'buzzer') { x0 -= 0.9; x1 += 0.9; y0 -= 2.4; y1 += 2.4; }
     if (p.type === 'resistor') { x0 -= 0.6; x1 += 0.6; }
     if (p.type === 'button') { x0 -= 0.5; x1 += 0.5; y0 -= 0.4; y1 += 0.4; }
@@ -2153,7 +2165,8 @@ const Board2D = (() => {
     for (const p of parts.slice().sort((a, b) => order[a.type] - order[b.type])) partS += PART_SVG[p.type](p, P);
     s += `<g class="wires">${wireS}</g><g class="parts">${partS}</g>`;
     // границы
-    const xs = [-0.5, BB.w + 0.5, L.ax - 3, L.ax + UNO.w + 0.8], ys = [-0.6, L.ay + UNO.h + 0.8];
+    const xs = [-0.5, BB.w + 0.5, L.ax - 3, L.ax + UNO.w + 0.8];
+    const ys = [parts.some(p => p.type === 'led') ? -2.9 : -0.6, L.ay + UNO.h + 0.8];   // корпуса светодиодов выше платы
     for (const r of wires) for (const q of r.pts) { xs.push(q[0] + 1); ys.push(q[1] + 1); }
     const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
     svg.setAttribute('viewBox', `${f(x0)} ${f(y0)} ${f(x1 - x0)} ${f(y1 - y0)}`);
@@ -2286,7 +2299,7 @@ const Schematic = (() => {
         <g class="sym-l"><path d="M${x + 0.2},${y - 2.1} l1.4,-1.4 M${x + 1.1},${y - 1.5} l1.4,-1.4"/>
         <path d="M${x + 1.6},${y - 3.5} l0.05,0.75 l-0.75,-0.05 Z M${x + 2.5},${y - 2.9} l0.05,0.75 l-0.75,-0.05 Z" class="arrowhead"/></g>
         <circle class="led-glow" cx="${x}" cy="${y}" r="3.6" fill="${c}" opacity="0"/>
-        <text x="${x - 2.7}" y="${y + 3.2}" class="lbl" text-anchor="end">${p.ref}</text>`;
+        <text x="${x + 3.1}" y="${y + 2.4}" class="lbl" text-anchor="start">${p.ref}</text>`;
     },
     buzzer(x, y, p) {
       return `<path d="M${x - 1.6},${y - 1.9} V${y + 1.9} M${x + 1.6},${y - 1.9} V${y + 1.9}" class="sym-l"/>
@@ -2413,12 +2426,14 @@ const Schematic = (() => {
         const lv = isTone ? 0.5 : (st.level[net] || 0);
         vPin = lv * 5;
         setV(net, isTone ? '♪ ' + st.tone.freq + ' Гц' : lv > 0.5 ? 'HIGH 5 В' : lv > 0 ? (lv * 5).toFixed(1) + ' В' : 'LOW 0 В');
-        if (first.type === 'led') {
-          const on = vPin > VF[first.color] ? (vPin - VF[first.color]) / (5 - VF[first.color]) : 0;
-          mid = on ? vPin - VF[first.color] : 0;
-          const gl = svg.querySelector(`[data-part="${first.id}"] .led-glow`);
+        const led = row.chain.map(id => P[id]).find(p => p.type === 'led');
+        if (led) {                     // пин → резистор → светодиод → GND
+          const vf = VF[led.color];
+          const on = vPin > vf ? (vPin - vf) / (5 - vf) : 0;
+          mid = vPin > vf ? vf : vPin;   // между резистором и длинной ножкой
+          const gl = svg.querySelector(`[data-part="${led.id}"] .led-glow`);
           gl.setAttribute('opacity', (on * 0.55).toFixed(2));
-          const tri = svg.querySelector(`[data-part="${first.id}"] .led-tri`);
+          const tri = svg.querySelector(`[data-part="${led.id}"] .led-tri`);
           tri.setAttribute('fill', on ? tri.dataset.c : 'none');
         }
         if (first.type === 'buzzer') {
@@ -2700,19 +2715,32 @@ const Scene3D = (() => {
   // ---------- Детали ----------
   const legMat = () => metal(0xb9bec3, 0.35);
 
+  // Цилиндр между двумя точками — для согнутых ножек
+  function rod(p1, p2, r, mat, parent) {
+    const d = new THREE.Vector3().subVectors(p2, p1), len = d.length();
+    const m = mesh(new THREE.CylinderGeometry(r, r, len, 8), mat, 0, 0, 0, parent);
+    m.position.copy(p1).addScaledVector(d, 0.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
+    return m;
+  }
+
   function buildLed(p) {
     const H = partHoles(p), a = P(H.anode.x, H.anode.y), c = P(H.cathode.x, H.cathode.y);
-    const x = (a.x + c.x) / 2, z = a.z, color = lin(LED_COLORS[p.color]);
+    const x = (a.x + c.x) / 2, z = (a.z + c.z) / 2, color = lin(LED_COLORS[p.color]);
     const g = new THREE.Group(); root.add(g);
-    const lm = legMat();
-    cyl(0.24, 5.2, lm, a.x, BB_TOP - 0.5, a.z, g, 8);
-    cyl(0.24, 5.0, lm, c.x, BB_TOP - 0.5, c.z, g, 8);
     const y0 = BB_TOP + 4.4;
+    // ножки: из отверстия вверх, потом наклонно к корпусу (короткая — в шину «−»)
+    const lm = legMat(), d = Math.hypot(a.x - c.x, a.z - c.z) || 1, ux = (a.x - c.x) / d, uz = (a.z - c.z) / d;
+    for (const [h, s] of [[a, 1], [c, -1]]) {
+      const inHole = new THREE.Vector3(h.x, BB_TOP - 0.8, h.z), up = new THREE.Vector3(h.x, BB_TOP + 1.2, h.z);
+      const exit = new THREE.Vector3(x + ux * 0.65 * s, y0 + 0.2, z + uz * 0.65 * s);
+      rod(inHole, up, 0.24, lm, g); rod(up, exit, 0.24, lm, g);
+    }
     const mat = new THREE.MeshPhysicalMaterial({ color, roughness: 0.12, transparent: true, opacity: 0.82, emissive: color, emissiveIntensity: 0, clearcoat: 1 });
     const fl = cyl(2.9, 1, mat, x, y0, z, g); fl.userData.name = p.name;
     const body = cyl(2.5, 5.4, mat, x, y0 + 1, z, g);
     const dome = mesh(new THREE.SphereGeometry(2.5, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), mat, x, y0 + 6.4, z, g);
-    box(0.5, 4, 0.5, std(0x666b70), x - 0.6, y0, z, g); box(0.9, 3.4, 0.5, std(0x666b70), x + 0.6, y0, z, g);
+    box(0.5, 4, 0.5, std(0x666b70), x + ux * 0.6, y0, z + uz * 0.6, g); box(0.9, 3.4, 0.5, std(0x666b70), x - ux * 0.6, y0, z - uz * 0.6, g);
     const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
     glow.position.set(x, y0 + 5, z);
     glow.scale.set(26, 26, 1);
@@ -2720,7 +2748,7 @@ const Scene3D = (() => {
     const light = new THREE.PointLight(color, 0, 70, 2);
     light.position.set(x, y0 + 5, z);
     g.add(light);
-    [fl, body, dome].forEach(m => { m.userData.name = p.name + ' → пин ' + p.pin; hoverables.push(m); });
+    [fl, body, dome].forEach(m => { m.userData.name = p.name + ': пин ' + p.pin + ' → резистор → длинная ножка (+), короткая (−) → шина «−»'; hoverables.push(m); });
     live.push({ type: 'led', p, mat, glow, light });
   }
 
@@ -3926,9 +3954,9 @@ const Widgets = (() => {
 
   // ---------- Таблица сборки ----------
   function holeText(h) {
-    const m = /^B-(\d+)$/.exec(h) || /^T-(\d+)$/.exec(h);
-    if (m) return 'шина «−» (синяя линия)';
-    if (/^[BT]\+/.test(h)) return 'шина «+» (красная линия)';
+    const side = h[0] === 'T' ? 'верхняя' : 'нижняя';
+    if (/^[TB]-\d+$/.test(h)) return side + ' шина «−» (синяя линия)';
+    if (/^[TB]\+\d+$/.test(h)) return side + ' шина «+» (красная линия)';
     return h;
   }
   const pinText = p => (/^D\d+$/.test(p) ? 'пин ' + p : p === 'GND' ? 'GND (верхний ряд, рядом с пином 13)' : p);
@@ -3942,10 +3970,11 @@ const Widgets = (() => {
       rows.push({ name: `Провод (${COLOR_RU[w.color]})`, dot: WIRE_COLORS[w.color], where: `${from} → ${holeText(w.to)}`, task: w.task });
     };
     ws.filter(w => w.from === 'GND').forEach(wireRow);
+    ws.filter(w => /^[TB]-/.test(w.from) && /^[TB]-/.test(w.to)).forEach(wireRow);   // перемычка между шинами «−»
     for (const p of ps) {
       let where = '', dot = null;
-      if (p.type === 'led') { where = `длинная ножка (+) → ${p.anode}, короткая (−) → ${p.cathode}`; dot = LED_COLORS[p.color]; }
-      if (p.type === 'resistor') where = `${p.a} → ${holeText(p.b)}`;
+      if (p.type === 'led') { where = `длинная ножка (+) → ${p.anode}, короткая (−) → ${holeText(p.cathode)}`; dot = LED_COLORS[p.color]; }
+      if (p.type === 'resistor') where = /^E/.test(p.a) && /^F/.test(p.b) ? `${p.a} → ${p.b} (поперёк канавки)` : `${p.a} → ${holeText(p.b)}`;
       if (p.type === 'buzzer') where = `«+» → ${p.plus}, «−» → ${p.minus}`;
       if (p.type === 'button') where = `поперёк канавки: E${p.col}, E${p.col + 2}, F${p.col}, F${p.col + 2}`;
       if (p.type === 'pot') where = `левый вывод → F${p.col}, средний → F${p.col + 2}, правый → F${p.col + 4}`;

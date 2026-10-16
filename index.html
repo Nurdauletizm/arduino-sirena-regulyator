@@ -307,7 +307,7 @@ input[type="range"] { accent-color: var(--accent); width: 100%; min-width: 120px
 .plan h4 { font-size: 14px; margin-bottom: 8px; }
 .plan ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .plan li { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; font-size: 14px; }
-.plan li span { font-variant-numeric: tabular-nums; color: var(--ink-3); font-weight: 600; }
+.plan li .t { font-variant-numeric: tabular-nums; color: var(--ink-3); font-weight: 600; }
 .extra { display: grid; gap: 10px; }
 .extra li { color: var(--ink-2); }
 .extra li b { color: var(--ink); }
@@ -899,20 +899,20 @@ if (mode == MODE_ARMING) {
           <div class="block">
             <h4>План урока · первые 45 минут</h4>
             <ol>
-              <li><span>0–5</span>Цель урока, показ готовой сирены в симуляторе</li>
-              <li><span>5–20</span>Теория 1–5: пищалка, <code>tone()</code>, синхронизация</li>
-              <li><span>20–35</span>Задание 1: сборка, проверка писка</li>
-              <li><span>35–45</span>Задание 2: «ти-та» и «вой»</li>
+              <li><span class="t">0–5</span><span>Цель урока, показ готовой сирены в симуляторе</span></li>
+              <li><span class="t">5–20</span><span>Теория 1–5: пищалка, <code>tone()</code>, синхронизация</span></li>
+              <li><span class="t">20–35</span><span>Задание 1: сборка, проверка писка</span></li>
+              <li><span class="t">35–45</span><span>Задание 2: «ти-та» и «вой»</span></li>
             </ol>
           </div>
           <div class="block">
             <h4>План урока · вторые 45 минут</h4>
             <ol>
-              <li><span>0–12</span>Теория 6–9: «delay против millis», кнопка, дребезг</li>
-              <li><span>12–27</span>Задание 3, сравнение с вариантом «Ошибка: delay()»</li>
-              <li><span>27–32</span>Теория 10: режимы</li>
-              <li><span>32–42</span>Задание 4</li>
-              <li><span>42–45</span>Вопросы для закрепления</li>
+              <li><span class="t">0–12</span><span>Теория 6–9: «delay против millis», кнопка, дребезг</span></li>
+              <li><span class="t">12–27</span><span>Задание 3, сравнение с вариантом «Ошибка: delay()»</span></li>
+              <li><span class="t">27–32</span><span>Теория 10: режимы</span></li>
+              <li><span class="t">32–42</span><span>Задание 4</span></li>
+              <li><span class="t">42–45</span><span>Вопросы для закрепления</span></li>
             </ol>
           </div>
         </div>
@@ -1330,20 +1330,20 @@ void loop() {
           <div class="block">
             <h4>План урока · первые 45 минут</h4>
             <ol>
-              <li><span>0–5</span>Цель урока, показ регулятора в симуляторе</li>
-              <li><span>5–25</span>Теория 1–5: аналог и цифра, потенциометр, делитель, АЦП</li>
-              <li><span>25–40</span>Задание 1, работа с Монитором порта и Плоттером</li>
-              <li><span>40–45</span>Вопросы 1–3</li>
+              <li><span class="t">0–5</span><span>Цель урока, показ регулятора в симуляторе</span></li>
+              <li><span class="t">5–25</span><span>Теория 1–5: аналог и цифра, потенциометр, делитель, АЦП</span></li>
+              <li><span class="t">25–40</span><span>Задание 1, работа с Монитором порта и Плоттером</span></li>
+              <li><span class="t">40–45</span><span>Вопросы 1–3</span></li>
             </ol>
           </div>
           <div class="block">
             <h4>План урока · вторые 45 минут</h4>
             <ol>
-              <li><span>0–8</span>Теория 6–7: <code>map()</code>, пороги</li>
-              <li><span>8–20</span>Задание 2</li>
-              <li><span>20–33</span>Задание 3, вариант с массивом для сильных</li>
-              <li><span>33–42</span>Задание 4</li>
-              <li><span>42–45</span>Вопросы 4–7</li>
+              <li><span class="t">0–8</span><span>Теория 6–7: <code>map()</code>, пороги</span></li>
+              <li><span class="t">8–20</span><span>Задание 2</span></li>
+              <li><span class="t">20–33</span><span>Задание 3, вариант с массивом для сильных</span></li>
+              <li><span class="t">33–42</span><span>Задание 4</span></li>
+              <li><span class="t">42–45</span><span>Вопросы 4–7</span></li>
             </ol>
           </div>
         </div>

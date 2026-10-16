@@ -436,7 +436,7 @@ code, kbd, pre, textarea, .var, .readout, output, .formula { font-variant-ligatu
               <li><span class="q">3×</span>Резисторы 220 Ом</li>
               <li><span class="q">1×</span>Пищалка (пассивный зуммер)</li>
               <li><span class="q">1×</span>Тактовая кнопка</li>
-              <li><span class="q">9×</span>Провода «папа–папа»</li>
+              <li><span class="q">11×</span>Провода «папа–папа»</li>
             </ul>
           </div>
           <div class="learn">
@@ -498,7 +498,7 @@ digitalWrite(7, LOW);    // подать 0 В — светодиод погас<
             <ol>
               <li><b>Полярность.</b> Длинная ножка — <b>анод (+)</b>, к ней приходит сигнал от пина. Короткая — <b>катод (−)</b>, она идёт к земле GND. Со стороны катода на ободке корпуса есть срез.</li>
               <li><b>Резистор обязателен и стоит со стороны плюса:</b> пин → резистор 220 Ом → длинная ножка. Без резистора потечёт слишком большой ток, и сгорит светодиод или пин Arduino.</li>
-              <li><b>Короткая ножка — в минус.</b> Её вставляем прямо в синюю шину «−», а шину проводом соединяем с GND Arduino.</li>
+              <li><b>Короткая ножка — в минус через провод.</b> Короткую ножку вставляем в свой столбец, а от него чёрный провод идёт в синюю шину «−». Шина соединена проводом с GND Arduino.</li>
             </ol>
             <p>Почему именно 220 Ом? Посчитаем ток по закону Ома. На светодиоде «теряется» около 2 В, на резистор остаётся 5 − 2 = 3 В:</p>
             <div class="formula">I = U / R = 3 В / 220 Ом ≈ 0,014 А = 14 мА</div>
@@ -756,7 +756,7 @@ if (mode == MODE_ARMING) {
           <p>Собираем основу сирены. Светодиоды мигают по очереди, как маячки полицейской машины, а пищалка при включении коротко пикает — так проверяем, что всё подключено правильно.</p>
         </div>
         <div class="newlist">
-          <div><b>Детали</b><div class="chips"><span class="chip new">красный светодиод</span><span class="chip new">синий светодиод</span><span class="chip new">2 × резистор 220 Ом</span><span class="chip new">пищалка</span><span class="chip new">6 проводов</span></div></div>
+          <div><b>Детали</b><div class="chips"><span class="chip new">красный светодиод</span><span class="chip new">синий светодиод</span><span class="chip new">2 × резистор 220 Ом</span><span class="chip new">пищалка</span><span class="chip new">7 проводов</span></div></div>
           <div><b>Новое в коде</b><div class="chips"><span class="chip code new">tone()</span><span class="chip code new">noTone()</span><span class="chip code">const int</span><span class="chip code">delay()</span></div></div>
         </div>
       </div>
@@ -788,7 +788,7 @@ if (mode == MODE_ARMING) {
           <p>Как у настоящей сигнализации: после нажатия кнопки у хозяина есть 5 секунд, чтобы выйти. Всё это время мигает жёлтый светодиод и тикает пищалка, затем включается сирена. Повторное нажатие в любой момент — отмена.</p>
         </div>
         <div class="newlist">
-          <div><b>Детали</b><div class="chips"><span class="chip new">жёлтый светодиод</span><span class="chip new">резистор 220 Ом</span><span class="chip new">1 провод</span></div></div>
+          <div><b>Детали</b><div class="chips"><span class="chip new">жёлтый светодиод</span><span class="chip new">резистор 220 Ом</span><span class="chip new">2 провода</span></div></div>
           <div><b>Новое в коде</b><div class="chips"><span class="chip new">режимы</span><span class="chip code new">int mode</span><span class="chip code new">tone(pin, f, 30)</span><span class="chip code">millis()</span></div></div>
         </div>
       </div>
@@ -796,7 +796,7 @@ if (mode == MODE_ARMING) {
       <div class="wb-slot"></div>
 
       <div class="task-details" data-task="1">
-        <div class="card wide"><h4>Сборка по шагам</h4><p class="muted">Резистор ставим со стороны плюса: поперёк канавки, он соединяет столбец провода от пина со столбцом длинной ножки. Короткая ножка (−) — сразу в верхнюю синюю шину. Перемычка справа соединяет нижнюю и верхнюю шины «−».</p><div class="assembly-slot"></div></div>
+        <div class="card wide"><h4>Сборка по шагам</h4><p class="muted">Резистор ставим со стороны плюса: он лежит вдоль ряда I и соединяет столбец провода от пина со столбцом длинной ножки (+). От столбца короткой ножки (−) чёрный провод идёт в синюю шину «−» — так же, как у пищалки.</p><div class="assembly-slot"></div></div>
         <div class="card"><h4>Как работает код</h4><ol>
           <li>В начале даём пинам имена: <code>RED_LED = 7</code> и так далее. Если провод придётся переставить на другой пин, достаточно поменять одно число.</li>
           <li>В <code>setup()</code> все три пина становятся выходами. Затем <code>tone()</code> → <code>delay(200)</code> → <code>noTone()</code>: писк длиной 0,2 секунды. Он звучит один раз — <code>setup()</code> выполняется только при включении.</li>
@@ -804,8 +804,8 @@ if (mode == MODE_ARMING) {
           <li>Следите за подсветкой строк в коде: она показывает, какая строка выполняется прямо сейчас. Почти всё время программа стоит на строках с <code>delay()</code>.</li>
         </ol></div>
         <div class="card trouble"><h4>Если не работает</h4><ul>
-          <li><b>Светодиод не горит.</b> Длинная ножка (+) — в одном столбце с резистором, короткая (−) — в синей шине «−». Перевёрнутый светодиод не горит: поменяйте ножки местами.</li>
-          <li><b>Не горит ничего.</b> Провод GND от Arduino идёт на нижнюю шину «−», а перемычка соединяет её с верхней, куда вставлены короткие ножки.</li>
+          <li><b>Светодиод не горит.</b> Длинная ножка (+) — в одном столбце с концом резистора, короткая (−) — в столбце, откуда чёрный провод идёт в шину «−». Перевёрнутый светодиод не горит: поменяйте ножки местами.</li>
+          <li><b>Не горит ничего.</b> Провод GND от Arduino должен идти в ту же синюю шину «−», куда приходят чёрные провода от светодиодов.</li>
           <li><b>Пищалка молчит.</b> Её ножки должны стоять в разных столбцах. «+» — к пину 8, «−» — к GND.</li>
           <li><b>Звук хриплый или один и тот же.</b> Скорее всего, пищалка активная. Для сирены нужна пассивная.</li>
         </ul></div>
@@ -865,7 +865,7 @@ if (mode == MODE_ARMING) {
           <li>Над графиком симулятора видно текущий режим и сколько секунд осталось до включения охраны.</li>
         </ol></div>
         <div class="card trouble"><h4>Если не работает</h4><ul>
-          <li><b>Жёлтый не мигает.</b> Проверьте провод от D5, резистор поперёк канавки и короткую ножку в верхней шине «−».</li>
+          <li><b>Жёлтый не мигает.</b> Проверьте провод от D5, резистор вдоль ряда I и чёрный провод от короткой ножки в шину «−».</li>
           <li><b>Сирена включается сразу.</b> Убедитесь, что <code>armStart = now;</code> стоит внутри ветки, где режим становится <code>MODE_ARMING</code>.</li>
           <li><b>Сирена не выключается.</b> В ветке выключения должны быть <code>noTone(BUZZER)</code> и гашение всех трёх светодиодов.</li>
         </ul></div>
@@ -942,7 +942,7 @@ if (mode == MODE_ARMING) {
               <li><span class="q">4×</span>Светодиоды: 2 зелёных, жёлтый, красный</li>
               <li><span class="q">4×</span>Резисторы 220 Ом</li>
               <li><span class="q">1×</span>Пищалка</li>
-              <li><span class="q">11×</span>Провода «папа–папа»</li>
+              <li><span class="q">14×</span>Провода «папа–папа»</li>
             </ul>
           </div>
           <div class="learn">
@@ -1213,7 +1213,7 @@ void loop() {
           <p>Вариант «Массив и цикл» делает то же самое короче — с массивом пинов и <code>map()</code>.</p>
         </div>
         <div class="newlist">
-          <div><b>Детали</b><div class="chips"><span class="chip new">3 светодиода</span><span class="chip new">3 резистора 220 Ом</span><span class="chip new">3 провода</span></div></div>
+          <div><b>Детали</b><div class="chips"><span class="chip new">3 светодиода</span><span class="chip new">3 резистора 220 Ом</span><span class="chip new">6 проводов</span></div></div>
           <div><b>Новое в коде</b><div class="chips"><span class="chip new">пороги</span><span class="chip code new">if … else</span><span class="chip code new">массив</span><span class="chip code">for</span></div></div>
         </div>
       </div>
@@ -1251,7 +1251,7 @@ void loop() {
         </ul></div>
       </div>
       <div class="task-details" data-task="2" hidden>
-        <div class="card wide"><h4>Сборка по шагам</h4><p class="muted">Резистор ставим со стороны плюса: поперёк канавки, между столбцом провода от D7 и столбцом длинной ножки. Короткая ножка (−) — сразу в верхнюю синюю шину. Перемычка справа соединяет нижнюю и верхнюю шины «−».</p><div class="assembly-slot"></div></div>
+        <div class="card wide"><h4>Сборка по шагам</h4><p class="muted">Резистор ставим со стороны плюса: вдоль ряда I, между столбцом провода от D7 и столбцом длинной ножки (+). От столбца короткой ножки (−) чёрный провод идёт в синюю шину «−».</p><div class="assembly-slot"></div></div>
         <div class="card"><h4>Как работает код</h4><ol>
           <li>В начале каждого <code>loop()</code> читаем ручку и сразу считаем паузу: <code>map(value, 0, 1023, 50, 1000)</code>.</li>
           <li>Светодиод горит <code>pause</code> мс и столько же не горит. Чем больше пауза, тем медленнее мигание.</li>
@@ -1259,7 +1259,7 @@ void loop() {
           <li>Вариант «Пауза = значение»: <code>delay(value)</code> — пауза прямо пропорциональна повороту. Около нуля светодиод мигает так быстро, что кажется, будто он просто горит.</li>
         </ol></div>
         <div class="card trouble"><h4>Если не работает</h4><ul>
-          <li><b>Светодиод не горит.</b> Длинная ножка (+) — в столбец резистора, короткая (−) — в верхнюю шину «−». Проверьте перемычку между нижней и верхней шинами «−».</li>
+          <li><b>Светодиод не горит.</b> Длинная ножка (+) — в столбец конца резистора, от столбца короткой (−) — чёрный провод в шину «−». Перевёрнутый светодиод не горит.</li>
           <li><b>Мигает всегда одинаково.</b> Проверьте, что в <code>delay()</code> стоит переменная <code>pause</code>, а не число.</li>
           <li><b>Реагирует с опозданием.</b> Так и должно быть при длинной паузе — см. пункт 3 слева.</li>
         </ul></div>
@@ -1269,7 +1269,7 @@ void loop() {
         </ul></div>
       </div>
       <div class="task-details" data-task="3" hidden>
-        <div class="card wide"><h4>Сборка по шагам</h4><p class="muted">Светодиоды стоят в ряд слева направо: LED1 → LED4. У каждого свой резистор со стороны плюса, короткие ножки — в верхней шине «−». Провода идут от D7, D6, D5, D4 — так они не перекрещиваются.</p><div class="assembly-slot"></div></div>
+        <div class="card wide"><h4>Сборка по шагам</h4><p class="muted">Светодиоды стоят в ряд слева направо: LED1 → LED4. У каждого свой резистор со стороны плюса и свой чёрный провод от короткой ножки в шину «−». Провода идут от D7, D6, D5, D4 — так они не перекрещиваются.</p><div class="assembly-slot"></div></div>
         <div class="card"><h4>Как работает код</h4><ol>
           <li>Четыре одинаковых блока <code>if … else</code>: каждый светодиод сравнивает значение со своим порогом — 200, 400, 600 или 800.</li>
           <li>Пороги идут по возрастанию, поэтому светодиоды загораются строго по очереди.</li>
@@ -1751,63 +1751,61 @@ const Circuit = (() => {
 
   // ---------- Схемы уроков ----------
   // task — в каком задании деталь/провод появляется впервые
+  // Светодиод: провод от пина → столбец w, резистор вдоль ряда I (w → w+3),
+  // длинная ножка (+) в столбце w+3, короткая (−) в w+2, от неё чёрный провод в шину «−».
+  const ledGroup = (w, task, led, pin, color) => ({
+    parts: [
+      { id: 'r' + led.slice(-1), type: 'resistor', task, a: 'I' + w, b: 'I' + (w + 3), name: 'Резистор 220 Ом', ohms: 220 },
+      { id: led, type: 'led', task, pin, anode: 'G' + (w + 3), cathode: 'G' + (w + 2) },
+    ],
+    wires: [
+      { from: pin, to: 'J' + w, color, task },
+      { from: 'J' + (w + 2), to: 'B-' + (w + 2), color: 'black', task },
+    ],
+  });
+  // seq — детали и группы светодиодов в порядке сборки (так их перечисляет таблица)
+  function lesson(base, seq) {
+    for (const item of seq) {
+      if (item.parts) { base.parts.push(...item.parts); base.wires.push(...item.wires); } else base.parts.push(item);
+    }
+    return base;
+  }
+  const named = (g, props) => { Object.assign(g.parts[1], props); g.parts[0].ref = 'R' + props.ref.slice(2); return g; };
+
   const LESSONS = {
-    8: {
-      ax: -5.5, ay: 26,
-      parts: [
-        { id: 'buz', type: 'buzzer', task: 1, pin: 'D8', plus: 'G2', minus: 'G5', name: 'Пищалка', ref: 'HA1' },
-        { id: 'ledR', type: 'led', task: 1, color: 'red', pin: 'D7', anode: 'A10', cathode: 'T-9', name: 'Красный светодиод', ref: 'HL1' },
-        { id: 'r1', type: 'resistor', task: 1, a: 'E10', b: 'F10', name: 'Резистор 220 Ом', ref: 'R1', ohms: 220 },
-        { id: 'ledB', type: 'led', task: 1, color: 'blue', pin: 'D6', anode: 'A14', cathode: 'T-13', name: 'Синий светодиод', ref: 'HL2' },
-        { id: 'r2', type: 'resistor', task: 1, a: 'E14', b: 'F14', name: 'Резистор 220 Ом', ref: 'R2', ohms: 220 },
-        { id: 'btn', type: 'button', task: 3, pin: 'D2', col: 21, name: 'Кнопка', ref: 'SB1' },
-        { id: 'ledY', type: 'led', task: 4, color: 'yellow', pin: 'D5', anode: 'A18', cathode: 'T-17', name: 'Жёлтый светодиод', ref: 'HL3' },
-        { id: 'r3', type: 'resistor', task: 4, a: 'E18', b: 'F18', name: 'Резистор 220 Ом', ref: 'R3', ohms: 220 },
-      ],
+    8: lesson({
+      ax: -6.5, ay: 26,
+      parts: [],
       wires: [
         { from: 'GND', to: 'B-1', color: 'black', task: 1 },
-        { from: 'B-29', to: 'T-29', color: 'black', task: 1 },   // перемычка: нижняя шина «−» → верхняя
         { from: 'D8', to: 'J2', color: 'purple', task: 1 },
         { from: 'J5', to: 'B-5', color: 'black', task: 1 },
-        { from: 'D7', to: 'J10', color: 'orange', task: 1 },
-        { from: 'D6', to: 'J14', color: 'blue', task: 1 },
         { from: 'D2', to: 'J21', color: 'green', task: 3 },
         { from: 'J23', to: 'B-23', color: 'black', task: 3 },
-        { from: 'D5', to: 'J18', color: 'yellow', task: 4 },
       ],
       // Принципиальная схема: строки «пин → детали → GND»
       schematic: [
         { pin: 'D8', chain: ['buz'] },
-        { pin: 'D7', chain: ['r1', 'ledR'] },
-        { pin: 'D6', chain: ['r2', 'ledB'] },
-        { pin: 'D5', chain: ['r3', 'ledY'] },
+        { pin: 'D7', chain: ['rR', 'ledR'] },
+        { pin: 'D6', chain: ['rB', 'ledB'] },
+        { pin: 'D5', chain: ['rY', 'ledY'] },
         { pin: 'D2', chain: ['btn'] },
       ],
-    },
-    9: {
-      ax: -7, ay: 26,
-      parts: [
-        { id: 'pot', type: 'pot', task: 1, pin: 'A0', col: 22, name: 'Потенциометр 10 кОм', ref: 'R5' },
-        { id: 'led1', type: 'led', task: 2, color: 'green', pin: 'D7', anode: 'A9', cathode: 'T-8', name: 'LED1 зелёный', ref: 'HL1' },
-        { id: 'r1', type: 'resistor', task: 2, a: 'E9', b: 'F9', name: 'Резистор 220 Ом', ref: 'R1', ohms: 220 },
-        { id: 'led2', type: 'led', task: 3, color: 'green', pin: 'D6', anode: 'A12', cathode: 'T-11', name: 'LED2 зелёный', ref: 'HL2' },
-        { id: 'r2', type: 'resistor', task: 3, a: 'E12', b: 'F12', name: 'Резистор 220 Ом', ref: 'R2', ohms: 220 },
-        { id: 'led3', type: 'led', task: 3, color: 'yellow', pin: 'D5', anode: 'A15', cathode: 'T-14', name: 'LED3 жёлтый', ref: 'HL3' },
-        { id: 'r3', type: 'resistor', task: 3, a: 'E15', b: 'F15', name: 'Резистор 220 Ом', ref: 'R3', ohms: 220 },
-        { id: 'led4', type: 'led', task: 3, color: 'red', pin: 'D4', anode: 'A18', cathode: 'T-17', name: 'LED4 красный', ref: 'HL4' },
-        { id: 'r4', type: 'resistor', task: 3, a: 'E18', b: 'F18', name: 'Резистор 220 Ом', ref: 'R4', ohms: 220 },
-        { id: 'buz', type: 'buzzer', task: 4, pin: 'D8', plus: 'G2', minus: 'G5', name: 'Пищалка', ref: 'HA1' },
-      ],
+    }, [
+      { id: 'buz', type: 'buzzer', task: 1, pin: 'D8', plus: 'G2', minus: 'G5', name: 'Пищалка', ref: 'HA1' },
+      named(ledGroup(7, 1, 'ledR', 'D7', 'orange'), { color: 'red', name: 'Красный светодиод', ref: 'HL1' }),
+      named(ledGroup(11, 1, 'ledB', 'D6', 'blue'), { color: 'blue', name: 'Синий светодиод', ref: 'HL2' }),
+      { id: 'btn', type: 'button', task: 3, pin: 'D2', col: 21, name: 'Кнопка', ref: 'SB1' },
+      named(ledGroup(15, 4, 'ledY', 'D5', 'yellow'), { color: 'yellow', name: 'Жёлтый светодиод', ref: 'HL3' }),
+    ]),
+    9: lesson({
+      ax: -7.5, ay: 26,
+      parts: [],
       wires: [
         { from: 'GND', to: 'B-1', color: 'black', task: 1 },
-        { from: 'J22', to: 'B-22', color: 'black', task: 1 },
-        { from: 'A0', to: 'J24', color: 'blue', task: 1, around: 1 },
-        { from: '5V', to: 'J26', color: 'red', task: 1, around: 2 },
-        { from: 'D7', to: 'J9', color: 'green', task: 2 },
-        { from: 'B-29', to: 'T-29', color: 'black', task: 2 },   // перемычка: нижняя шина «−» → верхняя
-        { from: 'D6', to: 'J12', color: 'teal', task: 3 },
-        { from: 'D5', to: 'J15', color: 'yellow', task: 3 },
-        { from: 'D4', to: 'J18', color: 'orange', task: 3 },
+        { from: 'J25', to: 'B-25', color: 'black', task: 1 },
+        { from: 'A0', to: 'J27', color: 'blue', task: 1, around: 1 },
+        { from: '5V', to: 'J29', color: 'red', task: 1, around: 2 },
         { from: 'D8', to: 'J2', color: 'purple', task: 4 },
         { from: 'J5', to: 'B-5', color: 'black', task: 4 },
       ],
@@ -1819,7 +1817,14 @@ const Circuit = (() => {
         { pin: 'D4', chain: ['r4', 'led4'] },
         { pin: 'D8', chain: ['buz'] },
       ],
-    },
+    }, [
+      { id: 'pot', type: 'pot', task: 1, pin: 'A0', col: 25, name: 'Потенциометр 10 кОм', ref: 'R5' },
+      named(ledGroup(7, 2, 'led1', 'D7', 'green'), { color: 'green', name: 'LED1 зелёный', ref: 'HL1' }),
+      named(ledGroup(11, 3, 'led2', 'D6', 'white'), { color: 'green', name: 'LED2 зелёный', ref: 'HL2' }),
+      named(ledGroup(15, 3, 'led3', 'D5', 'yellow'), { color: 'yellow', name: 'LED3 жёлтый', ref: 'HL3' }),
+      named(ledGroup(19, 3, 'led4', 'D4', 'orange'), { color: 'red', name: 'LED4 красный', ref: 'HL4' }),
+      { id: 'buz', type: 'buzzer', task: 4, pin: 'D8', plus: 'G2', minus: 'G5', name: 'Пищалка', ref: 'HA1' },
+    ]),
   };
 
   const WIRE_COLORS = {
@@ -2000,29 +2005,35 @@ const Board2D = (() => {
     const y0 = Math.min(a.y, c.y) - 1.3, yf = y0 - 0.32, yt = yf - 1.6;
     const kx = cx - dir * 0.5, ax = cx + dir * 0.5;          // где ножки выходят из корпуса
     const flatEdge = cx - dir * 1.0, roundEdge = cx + dir * 1.15;
+    const same = a.y === c.y;
+    const anodeLeg = same ? `M${a.x},${a.y} V${a.y - 0.5} L${a.x + dir * 0.32},${a.y - 0.8} L${a.x},${a.y - 1.1} V${y0}`
+      : `M${a.x},${a.y} V${a.y - 0.65} L${ax},${a.y - 1.25} V${y0}`;
+    const plus = same ? [a.x + dir * 0.5, a.y + 0.22] : [a.x + dir * 1.0, a.y - 0.62];
+    const minus = same ? [c.x - dir * 0.5, c.y + 0.22] : [c.x - dir * 0.55, c.y - 0.42];
     return `<g class="part led" data-part="${p.id}">
       <circle class="led-glow" cx="${cx}" cy="${yt}" r="3.6" fill="url(#${P}glow-${p.color})" opacity="0"/>
       <path d="M${c.x},${c.y} L${kx},${c.y - 0.5} V${y0}" ${leg}/>
-      <path d="M${a.x},${a.y} V${a.y - 0.65} L${ax},${a.y - 1.25} V${y0}" ${leg}/>
+      <path d="${anodeLeg}" ${leg}/>
       <circle cx="${c.x}" cy="${c.y}" r="0.17" fill="#5d6469"/><circle cx="${a.x}" cy="${a.y}" r="0.17" fill="#5d6469"/>
       <rect x="${Math.min(flatEdge, roundEdge)}" y="${yf}" width="${Math.abs(roundEdge - flatEdge)}" height="0.32" rx="0.05" fill="${col}" fill-opacity="0.75"/>
       <path class="led-body" d="M${cx - 1},${yf} V${yt} A1,1 0 0 1 ${cx + 1},${yt} V${yf} Z" fill="${col}" fill-opacity="0.55" stroke="${col}" stroke-width="0.08"/>
       <path class="led-core" d="M${cx - 0.55},${yf} V${yt} A0.55,0.55 0 0 1 ${cx + 0.55},${yt} V${yf} Z" fill="#fff" opacity="0"/>
       <path d="M${cx - 0.62},${yf - 0.2} V${yt - 0.1}" stroke="#fff" stroke-opacity="0.55" stroke-width="0.16" stroke-linecap="round"/>
-      <text x="${a.x + dir * 1.0}" y="${a.y - 0.62}" font-size="0.6" fill="#c0392b" text-anchor="middle" font-family="Arial" font-weight="700">+</text>
-      <text x="${c.x - dir * 0.55}" y="${c.y - 0.42}" font-size="0.6" fill="#3a6fd8" text-anchor="middle" font-family="Arial" font-weight="700">−</text>
+      <text x="${plus[0]}" y="${plus[1]}" font-size="0.6" fill="#c0392b" text-anchor="middle" font-family="Arial" font-weight="700">+</text>
+      <text x="${minus[0]}" y="${minus[1]}" font-size="0.6" fill="#3a6fd8" text-anchor="middle" font-family="Arial" font-weight="700">−</text>
     </g>`;
   }
 
   function resistorSVG(p) {
     const a = hole(p.a), b = hole(p.b);
-    const x = a.x, mid = (a.y + b.y) / 2;
-    const len = Math.min(2.6, Math.abs(b.y - a.y) - 0.6);   // корпус короче промежутка между ножками
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, span = Math.hypot(b.x - a.x, b.y - a.y);
+    const ang = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI - 90;   // рисуем «стоя» и поворачиваем
+    const len = Math.min(2.6, span - 0.6);                                // корпус короче промежутка между ножками
     const bands = [[-0.365, '#d1342b'], [-0.204, '#d1342b'], [-0.042, '#7a4a1e'], [0.262, '#c9a43a']];
-    let s = `<g class="part resistor" data-part="${p.id}">
-      <path d="M${x},${a.y} V${b.y}" stroke="#a2a8ad" stroke-width="0.16"/>
-      <rect x="${x - 0.5}" y="${f(mid - len / 2)}" width="1" height="${f(len)}" rx="0.48" fill="#dcc59e" stroke="#a78d63" stroke-width="0.07"/>`;
-    for (const [k, c] of bands) s += `<rect x="${x - 0.5}" y="${f(mid + k * len)}" width="1" height="0.22" fill="${c}"/>`;
+    let s = `<g class="part resistor" data-part="${p.id}" transform="translate(${f(mx)} ${f(my)}) rotate(${f(ang)})">
+      <path d="M0,${f(-span / 2)} V${f(span / 2)}" stroke="#a2a8ad" stroke-width="0.16"/>
+      <rect x="-0.5" y="${f(-len / 2)}" width="1" height="${f(len)}" rx="0.48" fill="#dcc59e" stroke="#a78d63" stroke-width="0.07"/>`;
+    for (const [k, c] of bands) s += `<rect x="-0.5" y="${f(k * len)}" width="1" height="0.22" fill="${c}"/>`;
     return s + '</g>';
   }
 
@@ -2090,7 +2101,7 @@ const Board2D = (() => {
     let y0 = Math.min(...pts.map(q => q.y)), y1 = Math.max(...pts.map(q => q.y));
     if (p.type === 'led') { x0 -= 1.4; x1 += 1.4; y0 -= 4.3; }
     if (p.type === 'buzzer') { x0 -= 0.9; x1 += 0.9; y0 -= 2.4; y1 += 2.4; }
-    if (p.type === 'resistor') { x0 -= 0.6; x1 += 0.6; }
+    if (p.type === 'resistor') { x0 -= 0.6; x1 += 0.6; y0 -= 0.6; y1 += 0.6; }
     if (p.type === 'button') { x0 -= 0.5; x1 += 0.5; y0 -= 0.4; y1 += 0.4; }
     if (p.type === 'pot') { x0 -= 0.6; x1 += 0.6; y0 -= 4.4; y1 += 0.5; }
     return { x: x0 - 0.35, y: y0 - 0.35, w: x1 - x0 + 0.7, h: y1 - y0 + 0.7 };
@@ -2166,7 +2177,8 @@ const Board2D = (() => {
     s += `<g class="wires">${wireS}</g><g class="parts">${partS}</g>`;
     // границы
     const xs = [-0.5, BB.w + 0.5, L.ax - 3, L.ax + UNO.w + 0.8];
-    const ys = [parts.some(p => p.type === 'led') ? -2.9 : -0.6, L.ay + UNO.h + 0.8];   // корпуса светодиодов выше платы
+    const ledTops = parts.filter(p => p.type === 'led').map(p => Math.min(hole(p.anode).y, hole(p.cathode).y) - 4.6);
+    const ys = [Math.min(-0.6, ...ledTops), L.ay + UNO.h + 0.8];   // корпус светодиода может выступать за плату
     for (const r of wires) for (const q of r.pts) { xs.push(q[0] + 1); ys.push(q[1] + 1); }
     const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
     svg.setAttribute('viewBox', `${f(x0)} ${f(y0)} ${f(x1 - x0)} ${f(y1 - y0)}`);
@@ -2748,33 +2760,37 @@ const Scene3D = (() => {
     const light = new THREE.PointLight(color, 0, 70, 2);
     light.position.set(x, y0 + 5, z);
     g.add(light);
-    [fl, body, dome].forEach(m => { m.userData.name = p.name + ': пин ' + p.pin + ' → резистор → длинная ножка (+), короткая (−) → шина «−»'; hoverables.push(m); });
+    [fl, body, dome].forEach(m => { m.userData.name = p.name + ': пин ' + p.pin + ' → резистор → длинная ножка (+); от короткой (−) провод в шину «−»'; hoverables.push(m); });
     live.push({ type: 'led', p, mat, glow, light });
   }
 
   function buildResistor(p) {
     const H = partHoles(p), a = P(H.a.x, H.a.y), b = P(H.b.x, H.b.y);
     const g = new THREE.Group(); root.add(g);
-    const y = BB_TOP + 2.4, len = 6.4, mid = (a.z + b.z) / 2;
+    const y = BB_TOP + 2.4, len = 6.4;
+    const mid = new THREE.Vector3((a.x + b.x) / 2, y, (a.z + b.z) / 2);
+    const u = new THREE.Vector3(b.x - a.x, 0, b.z - a.z).normalize();     // направление от ножки a к ножке b
+    const rg = new THREE.Group();
+    rg.position.copy(mid);
+    rg.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), u);
+    g.add(rg);
     const prof = [];
     for (let i = 0; i <= 24; i++) {
-      const t = i / 24, zz = (t - 0.5) * len;
-      const r = 1.1 + 0.32 * Math.exp(-Math.pow((Math.abs(zz) - 2.3) / 0.75, 2));
-      prof.push(new THREE.Vector2(t === 0 || t === 1 ? 0.35 : r, zz));
+      const t = i / 24, yy = (t - 0.5) * len;
+      const r = 1.1 + 0.32 * Math.exp(-Math.pow((Math.abs(yy) - 2.3) / 0.75, 2));
+      prof.push(new THREE.Vector2(t === 0 || t === 1 ? 0.35 : r, yy));
     }
-    const body = mesh(new THREE.LatheGeometry(prof, 28), std(0xdcc59e, { roughness: 0.5 }), a.x, y, mid, g);
-    body.rotation.x = Math.PI / 2;
+    const body = mesh(new THREE.LatheGeometry(prof, 28), std(0xdcc59e, { roughness: 0.5 }), 0, 0, 0, rg);
     body.userData.name = p.name + ' (красный-красный-коричневый-золотой)';
     hoverables.push(body);
-    [[-1.7, 0xd1342b], [-0.95, 0xd1342b], [-0.2, 0x7a4a1e], [1.75, 0xc9a43a]].forEach(([dz, col]) => {
-      const r = mesh(new THREE.CylinderGeometry(1.25, 1.25, 0.5, 28), std(col, { roughness: 0.45, metalness: col === 0xc9a43a ? 0.6 : 0 }), a.x, y, mid + dz, g);
-      r.rotation.x = Math.PI / 2;
+    [[-1.7, 0xd1342b], [-0.95, 0xd1342b], [-0.2, 0x7a4a1e], [1.75, 0xc9a43a]].forEach(([d, col]) => {
+      mesh(new THREE.CylinderGeometry(1.25, 1.25, 0.5, 28), std(col, { roughness: 0.45, metalness: col === 0xc9a43a ? 0.6 : 0 }), 0, d, 0, rg);
     });
     const lm = legMat();
     for (const [h, s] of [[a, -1], [b, 1]]) {
-      const curve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(a.x, y, mid + s * len / 2), new THREE.Vector3(a.x, y, h.z - s * 0.6),
-        new THREE.Vector3(a.x, y - 1.2, h.z), new THREE.Vector3(a.x, BB_TOP - 1, h.z)], false, 'centripetal');
+      const end = mid.clone().addScaledVector(u, s * len / 2);
+      const near = new THREE.Vector3(h.x, y, h.z).addScaledVector(u, -s * 0.6);
+      const curve = new THREE.CatmullRomCurve3([end, near, new THREE.Vector3(h.x, y - 1.2, h.z), new THREE.Vector3(h.x, BB_TOP - 1, h.z)], false, 'centripetal');
       mesh(new THREE.TubeGeometry(curve, 16, 0.24, 8), lm, 0, 0, 0, g);
     }
   }
@@ -3974,7 +3990,7 @@ const Widgets = (() => {
     for (const p of ps) {
       let where = '', dot = null;
       if (p.type === 'led') { where = `длинная ножка (+) → ${p.anode}, короткая (−) → ${holeText(p.cathode)}`; dot = LED_COLORS[p.color]; }
-      if (p.type === 'resistor') where = /^E/.test(p.a) && /^F/.test(p.b) ? `${p.a} → ${p.b} (поперёк канавки)` : `${p.a} → ${holeText(p.b)}`;
+      if (p.type === 'resistor') where = p.a[0] === p.b[0] ? `${p.a} → ${p.b} (вдоль ряда ${p.a[0]})` : /^E/.test(p.a) && /^F/.test(p.b) ? `${p.a} → ${p.b} (поперёк канавки)` : `${p.a} → ${holeText(p.b)}`;
       if (p.type === 'buzzer') where = `«+» → ${p.plus}, «−» → ${p.minus}`;
       if (p.type === 'button') where = `поперёк канавки: E${p.col}, E${p.col + 2}, F${p.col}, F${p.col + 2}`;
       if (p.type === 'pot') where = `левый вывод → F${p.col}, средний → F${p.col + 2}, правый → F${p.col + 4}`;

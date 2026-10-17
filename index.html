@@ -400,6 +400,58 @@ code, kbd, pre, textarea, .var, .readout, output, .formula { font-variant-ligatu
 /* свечение светодиодов может выходить за рамку схемы */
 .board-svg, .hero-board { overflow: visible; }
 
+/* ---------- режим «Код крупно»: весь код на экран, чтобы переписывать ---------- */
+body.reading { overflow: hidden; }
+.reader { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; background: var(--code-bg); }
+.reader[hidden] { display: none; }
+.rd-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--line); padding-top: calc(10px + env(safe-area-inset-top, 0px)); }
+.rd-nav { display: flex; align-items: center; gap: 10px; }
+.rd-title { flex: 1; min-width: 0; text-align: center; }
+.rd-title > div { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rd-title b { font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+.rd-file { margin-left: 10px; font-family: var(--font-mono); font-size: 13px; color: var(--ink-3); }
+.rd-prev, .rd-next { max-width: 34%; }
+.rd-prev span, .rd-next span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rd-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.rd-controls > * { flex-shrink: 0; }
+.rd-controls .grow { flex: 1 1 0; }
+.rd-diff .sw { width: 26px; height: 15px; border-radius: 999px; background: var(--line); position: relative; flex: none; transition: background .15s; }
+.rd-diff .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 11px; height: 11px; border-radius: 50%; background: var(--surface); transition: transform .15s; }
+.rd-diff[aria-pressed="true"] .sw { background: var(--green); }
+.rd-diff[aria-pressed="true"] .sw::after { transform: translateX(11px); }
+.rd-diff:disabled { opacity: .45; cursor: default; }
+.rd-stat { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+.rd-stat .a { color: var(--green); font-weight: 700; } .rd-stat .d { color: var(--red); font-weight: 700; }
+.rd-body { flex: 1; min-height: 0; overflow: auto; padding: 18px 28px; outline: none; }
+.rd-lines { font-family: var(--font-mono); line-height: 1.55; column-gap: 40px; column-rule: 1px solid var(--line); color: var(--ink); font-variant-ligatures: none; }
+.rl { display: block; white-space: pre; break-inside: avoid; position: relative; padding-left: 3.4em; border-radius: 4px; }
+.rl::before { content: attr(data-n); position: absolute; left: 0; width: 2.5em; text-align: right; color: var(--code-gutter); font-variant-numeric: tabular-nums; }
+.rl .ig { box-shadow: inset 1px 0 0 color-mix(in srgb, var(--ink) 15%, transparent); }
+.rl.add { background: color-mix(in srgb, var(--green) 16%, transparent); box-shadow: inset 4px 0 0 var(--green); }
+.rl.add::before { color: var(--green); font-weight: 700; }
+.rl.del { background: color-mix(in srgb, var(--red) 10%, transparent); text-decoration: line-through; text-decoration-color: var(--red); opacity: .8; }
+.rl.del::before { content: "−"; color: var(--red); font-weight: 700; }
+.rd-tips { background: var(--surface); border-top: 1px solid var(--line); padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px)); font-size: 14px; }
+.rd-tips summary { cursor: pointer; font-weight: 600; color: var(--accent-ink); }
+.rd-tips ul { margin: 8px 0 4px; padding-left: 1.2em; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 4px 28px; color: var(--ink-2); }
+@media (max-width: 700px) {
+  .rd-prev span:last-child, .rd-next span:first-child, .rd-close span, .rd-full, .rd-print, .rd-file, .rd-controls .grow { display: none; }
+  .rd-title > div.rd-stat { white-space: normal; }
+  .rd-body { padding: 12px; }
+}
+
+@media print {
+  body.reading { overflow: visible; }
+  body.reading > :not(.reader) { display: none !important; }
+  body.reading .reader { position: static; display: block; background: #fff; color: #000; }
+  body.reading .rd-head { border: 0; padding: 0 0 6pt; background: #fff; }
+  body.reading .rd-controls, body.reading .rd-prev, body.reading .rd-next, body.reading .rd-close { display: none !important; }
+  body.reading .rd-title { text-align: left; white-space: normal; }
+  body.reading .rd-body { overflow: visible; padding: 0; background: #fff; }
+  body.reading .rd-lines { font-size: 9.5pt !important; column-count: 2 !important; color: #000; }
+  body.reading .rd-tips { border-top: 1px solid #999; padding: 6pt 0 0; background: #fff; }
+}
+
 </style>
 </head>
 <body>
@@ -1363,6 +1415,40 @@ void loop() {
   </div>
 </footer>
 
+<div class="reader" id="reader" hidden role="dialog" aria-modal="true" aria-labelledby="rd-title">
+  <div class="rd-head">
+    <div class="rd-nav">
+      <button class="btn rd-prev" type="button"><span aria-hidden="true">‹</span><span class="rd-prev-t"></span></button>
+      <div class="rd-title"><div id="rd-title"><b></b><span class="rd-file"></span></div><div class="rd-stat"></div></div>
+      <button class="btn rd-next" type="button"><span class="rd-next-t"></span><span aria-hidden="true">›</span></button>
+      <button class="btn rd-close" type="button" aria-label="Закрыть"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg><span>Закрыть</span></button>
+    </div>
+    <div class="rd-controls">
+      <div class="variant-tabs rd-variants" role="tablist" aria-label="Вариант кода"></div>
+      <div class="seg rd-cm" role="group" aria-label="Комментарии"><button type="button" data-cm="1">С комментариями</button><button type="button" data-cm="0">Без комментариев</button></div>
+      <button class="btn rd-diff" type="button" aria-pressed="false"><span class="sw" aria-hidden="true"></span><span>Что изменилось</span></button>
+      <span class="grow"></span>
+      <div class="seg rd-size" role="group" aria-label="Размер шрифта"><button type="button" data-fs="-1" aria-label="Мельче">A−</button><button type="button" data-fs="0">Авто</button><button type="button" data-fs="1" aria-label="Крупнее">A+</button></div>
+      <button class="btn rd-copy" type="button"><span>Копировать</span></button>
+      <button class="btn rd-print" type="button"><span>Печать</span></button>
+      <button class="btn rd-full" type="button"><span>На весь экран</span></button>
+    </div>
+  </div>
+  <div class="rd-body" tabindex="0" aria-label="Код скетча"><div class="rd-lines"></div></div>
+  <details class="rd-tips">
+    <summary>Как не ошибиться, когда переписываете код</summary>
+    <ul>
+      <li>Серый текст после <code>//</code> и между <code>/*</code> и <code>*/</code> — комментарии. Их можно не переписывать: Arduino их не читает. Кнопка «Без комментариев» оставит только код.</li>
+      <li>В конце каждой команды стоит точка с запятой <code>;</code></li>
+      <li>Скобки всегда парами: <code>( )</code> и <code>{ }</code>. Каждую открытую фигурную скобку нужно закрыть.</li>
+      <li>Большие и маленькие буквы различаются: <code>digitalWrite</code>, <code>HIGH</code>, <code>OUTPUT</code> — ровно так.</li>
+      <li><code>=</code> — записать значение, <code>==</code> — сравнить. В <code>if</code> почти всегда нужно <code>==</code>.</li>
+      <li>Цифра <code>0</code> и буква <code>O</code> — разные символы. Имена пишем латиницей, русский текст — только внутри кавычек <code>" "</code>.</li>
+      <li>Переписали — нажмите «Проверить» (галочка) в Arduino IDE. Если есть ошибка, IDE подсветит строку с ней.</li>
+    </ul>
+  </details>
+</div>
+
 <template id="wb-tpl">
 <div class="workbench">
   <div class="panel wb-code">
@@ -1370,6 +1456,7 @@ void loop() {
       <div class="variant-tabs" role="tablist" aria-label="Вариант кода"></div>
       <span class="file"></span>
       <button class="btn copy-btn" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5"/><path d="M3 10.5V3.5A1 1 0 0 1 4 2.5h6.5"/></svg><span>Копировать</span></button>
+      <button class="btn primary reader-btn" type="button" title="Весь код крупно — удобно переписывать с экрана или проектора"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"/></svg><span>Код крупно</span></button>
     </div>
     <div class="code-box">
       <pre aria-hidden="true"></pre>
@@ -3499,15 +3586,15 @@ const Widgets = (() => {
   const TASKS = {
     8: [
       { sketches: [{ f: 'Urok8_1_Migalka', label: 'Мигалка' }] },
-      { sketches: [{ f: 'Urok8_2_Sirena', label: 'Ти-та' }, { f: 'Urok8_2b_Sirena_Voy', label: 'Вой' }] },
-      { sketches: [{ f: 'Urok8_3_Knopka_Ohrana', label: 'С millis()' }, { f: 'Urok8_3b_Oshibka_delay', label: 'Ошибка: delay()', bad: true }] },
-      { sketches: [{ f: 'Urok8_4_Zaderzhka_5s', label: '5 секунд на выход' }], modes: ['ВЫКЛЮЧЕНО', 'ПОСТАНОВКА', 'ОХРАНА'] },
+      { sketches: [{ f: 'Urok8_2_Sirena', label: 'Ти-та', base: 'Urok8_1_Migalka' }, { f: 'Urok8_2b_Sirena_Voy', label: 'Вой', base: 'Urok8_2_Sirena' }] },
+      { sketches: [{ f: 'Urok8_3_Knopka_Ohrana', label: 'С millis()', base: 'Urok8_2_Sirena' }, { f: 'Urok8_3b_Oshibka_delay', label: 'Ошибка: delay()', bad: true, base: 'Urok8_2_Sirena' }] },
+      { sketches: [{ f: 'Urok8_4_Zaderzhka_5s', label: '5 секунд на выход', base: 'Urok8_3_Knopka_Ohrana' }], modes: ['ВЫКЛЮЧЕНО', 'ПОСТАНОВКА', 'ОХРАНА'] },
     ],
     9: [
       { sketches: [{ f: 'Urok9_1_Potenciometr', label: 'Потенциометр' }], pot: 300 },
-      { sketches: [{ f: 'Urok9_2_Skorost_Miganiya', label: 'С map()' }, { f: 'Urok9_2b_Prostoy_delay', label: 'Пауза = значение' }], pot: 300 },
-      { sketches: [{ f: 'Urok9_3_Shkala', label: 'Пороги if' }, { f: 'Urok9_3b_Shkala_Massiv', label: 'Массив и цикл' }], pot: 650 },
-      { sketches: [{ f: 'Urok9_4_Avariya', label: 'Авария' }], pot: 900 },
+      { sketches: [{ f: 'Urok9_2_Skorost_Miganiya', label: 'С map()', base: 'Urok9_1_Potenciometr' }, { f: 'Urok9_2b_Prostoy_delay', label: 'Пауза = значение', base: 'Urok9_2_Skorost_Miganiya' }], pot: 300 },
+      { sketches: [{ f: 'Urok9_3_Shkala', label: 'Пороги if', base: 'Urok9_2_Skorost_Miganiya' }, { f: 'Urok9_3b_Shkala_Massiv', label: 'Массив и цикл', base: 'Urok9_3_Shkala' }], pot: 650 },
+      { sketches: [{ f: 'Urok9_4_Avariya', label: 'Авария', base: 'Urok9_3_Shkala' }], pot: 900 },
     ],
   };
   const COLOR_RU = { black: 'чёрный', red: 'красный', purple: 'фиолетовый', orange: 'оранжевый', blue: 'синий', green: 'зелёный', yellow: 'жёлтый', white: 'белый', teal: 'бирюзовый' };
@@ -3934,7 +4021,7 @@ const Widgets = (() => {
     requestAnimationFrame(frame);
     const dtReal = Math.min(80, now - lastNow);
     lastNow = now;
-    if (!S.visible || !machine) return;
+    if (!S.visible || S.reading || !machine) return;
     if (S.running && machine.prog && !machine.error) {
       frameT0 = machine.t;
       audioT0 = Sound.ctx ? Sound.ctx.currentTime + 0.04 : 0;
@@ -4046,6 +4133,198 @@ const Widgets = (() => {
   const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : mq.matches; };
   mq.addEventListener('change', () => Scene3D.setTheme(isDark()));
   new MutationObserver(() => Scene3D.setTheme(isDark())).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  // ---------- Режим «Код крупно»: весь код на экран, чтобы переписывать ----------
+  const R = {
+    el: $('#reader'), body: $('#reader .rd-body'), lines: $('#reader .rd-lines'), title: $('#rd-title b'), file: $('#reader .rd-file'),
+    prev: $('#reader .rd-prev'), next: $('#reader .rd-next'), prevT: $('#reader .rd-prev-t'), nextT: $('#reader .rd-next-t'),
+    variants: $('#reader .rd-variants'), cm: $('#reader .rd-cm'), diff: $('#reader .rd-diff'), stat: $('#reader .rd-stat'),
+    size: $('#reader .rd-size'), copy: $('#reader .rd-copy'), print: $('#reader .rd-print'), full: $('#reader .rd-full'),
+    close: $('#reader .rd-close'), tips: $('#reader .rd-tips'), count: 0, maxChars: 40,
+  };
+  const RS = { comments: store.get('rd-cm') !== '0', diff: store.get('rd-diff') === '1', font: null, fontNow: 18, text: '' };
+  let lastFocus = null, CW = 0.6;   // CW — ширина символа моноширинного шрифта в долях em
+
+  // Комментарии убираем, номера строк сохраняем (блок-комментарий становится пустыми строками)
+  const uncomment = src => src.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\/|"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'/g,
+    m => (m[0] !== '/' ? m : m[1] === '*' ? m.replace(/[^\n]/g, '') : ''));
+  function compact(src) {                       // только код, без лишних пустых строк
+    const out = [];
+    for (const l of uncomment(src).split('\n').map(x => x.replace(/\s+$/, ''))) {
+      if (!l && (!out.length || !out[out.length - 1])) continue;
+      out.push(l);
+    }
+    while (out.length && !out[out.length - 1]) out.pop();
+    // пустая строка сразу после «{» или перед «}» — след убранного комментария
+    return out.filter((l, i) => l || !(/\{$/.test(out[i - 1] || '') || /^\s*\}/.test(out[i + 1] || ''))).join('\n');
+  }
+  // Строки, где есть код: их и сравниваем (комментарии и отступы не считаются)
+  // пробелы для выравнивания («RED_LED  = 7» и «RED_LED = 7») — не изменение
+  const codeKeys = text => uncomment(text).split('\n').map((l, line) => ({ line, key: l.trim().replace(/\s+/g, ' ') })).filter(x => x.key);
+  function diffCode(a, b) {                     // наибольшая общая подпоследовательность строк
+    const n = a.length, m = b.length;
+    const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    const ops = [];
+    let i = 0, j = 0;
+    while (i < n && j < m) {
+      if (a[i] === b[j]) ops.push(['=', i++, j++]);
+      else if (dp[i + 1][j] >= dp[i][j + 1]) ops.push(['-', i++]);
+      else ops.push(['+', -1, j++]);
+    }
+    while (i < n) ops.push(['-', i++]);
+    while (j < m) ops.push(['+', -1, j++]);
+    return ops;
+  }
+  function guides(raw, h) {                     // тонкие линии отступов — видно, где какой блок
+    const lead = raw.match(/^ */)[0].length;
+    if (lead < 2 || !h.startsWith(' '.repeat(lead))) return h;
+    return '<span class="ig">  </span>'.repeat(lead >> 1) + (lead & 1 ? ' ' : '') + h.slice(lead);
+  }
+  function place(f) {                           // где в уроках лежит скетч f
+    for (const L in TASKS) for (let n = 0; n < TASKS[L].length; n++) {
+      const v = TASKS[L][n].sketches.findIndex(x => x.f === f);
+      if (v >= 0) return { L: +L, n: n + 1, v, label: TASKS[L][n].sketches[v].label };
+    }
+    return null;
+  }
+
+  function renderReader() {
+    const L = S.lesson, n = S.task[L], sk = cfg.sketches[S.variant];
+    const src = W.ta.value;
+    const text = RS.comments ? src.replace(/\s+$/, '') : compact(src);
+    RS.text = text;
+    const raw = text.split('\n'), html = highlightLines(text);
+    const mark = new Array(raw.length).fill(''), delBefore = new Map();
+    let added = 0, removed = 0;
+    R.diff.disabled = !sk.base;
+    R.diff.setAttribute('aria-pressed', RS.diff && !!sk.base);
+    if (RS.diff && sk.base) {
+      const baseSrc = SKETCHES[sk.base], baseLines = uncomment(baseSrc).split('\n');
+      const old = codeKeys(baseSrc), cur = codeKeys(text);
+      let pending = [];
+      for (const op of diffCode(old.map(x => x.key), cur.map(x => x.key))) {
+        if (op[0] === '-') { pending.push(baseLines[old[op[1]].line].replace(/\s+$/, '')); removed++; continue; }
+        const li = cur[op[2]].line;
+        if (pending.length) { delBefore.set(li, pending); pending = []; }
+        if (op[0] === '+') { mark[li] = 'add'; added++; }
+      }
+      if (pending.length) delBefore.set(raw.length, pending);
+    }
+    const delRows = rows => rows.map(r => `<span class="rl del" data-n="">${guides(r, highlightLines(r)[0]) || ' '}</span>`).join('');
+    let out = '';
+    for (let i = 0; i < raw.length; i++) {
+      if (delBefore.has(i)) out += delRows(delBefore.get(i));
+      out += `<span class="rl ${mark[i]}" data-n="${i + 1}">${guides(raw[i], html[i]) || ' '}</span>`;
+    }
+    if (delBefore.has(raw.length)) out += delRows(delBefore.get(raw.length));
+    R.lines.innerHTML = out;
+    const dels = [...delBefore.values()].flat();
+    R.count = raw.length + dels.length;
+    R.maxChars = Math.max(20, ...raw.map(l => l.length), ...dels.map(l => l.length));
+    // шапка
+    R.title.textContent = `Урок ${L} · Задание ${n}` + (cfg.sketches.length > 1 ? ` · ${sk.label}` : '');
+    R.file.textContent = sk.f + '.ino' + (S.edited ? ' · изменён' : '');
+    R.prev.style.visibility = n === 1 ? 'hidden' : ''; R.next.style.visibility = n === TASKS[L].length ? 'hidden' : '';
+    R.prevT.textContent = n > 1 ? `Задание ${n - 1}` : 'Задание'; R.nextT.textContent = n < TASKS[L].length ? `Задание ${n + 1}` : 'Задание';
+    R.variants.innerHTML = cfg.sketches.length > 1 ? cfg.sketches.map((x, i) => `<button role="tab" class="${x.bad ? 'bad' : ''}" aria-selected="${i === S.variant}" data-v="${i}">${x.label}</button>`).join('') : '';
+    $$('[data-cm]', R.cm).forEach(b => b.setAttribute('aria-pressed', (b.dataset.cm === '1') === RS.comments));
+    if (RS.diff && sk.base) {
+      const p = place(sk.base);
+      const whom = p.L === L && p.n === n ? `вариантом «${p.label}»` : `заданием ${p.n}` + (p.v ? ` («${p.label}»)` : '');
+      R.stat.innerHTML = `<span class="a">+${added}</span> добавить · <span class="d">−${removed}</span> убрать — по сравнению с ${esc(whom)}`;
+    } else R.stat.textContent = `${raw.length} строк` + (sk.base ? '' : ' · первый скетч урока');
+    fitReader();
+  }
+
+  // Подбор шрифта и числа колонок: весь код без прокрутки, если он помещается крупно
+  function fitReader() {
+    if (R.el.hidden) return;
+    const cs = getComputedStyle(R.body);
+    const w = R.body.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 4;
+    const h = R.body.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 4;
+    const GAP = 40, LH = 1.55, unit = R.maxChars * CW + 3.6;   // ширина строки в em вместе с номером
+    const fits = (f, c) => c * unit * f + (c - 1) * GAP <= w && Math.ceil(R.count / c) * LH * f <= h;
+    let f = RS.font, c = 1;
+    if (f) c = [1, 2, 3].find(k => fits(f, k)) || 1;
+    else {
+      const maxF = Math.min(32, Math.floor(w / unit));
+      for (let ff = maxF; ff >= 15 && !f; ff--) for (let k = 1; k <= 3; k++) if (fits(ff, k)) { f = ff; c = k; break; }
+      if (!f) f = Math.max(13, Math.min(22, maxF));   // не помещается крупно — одна колонка с прокруткой
+    }
+    R.lines.style.fontSize = f + 'px';
+    R.lines.style.columnCount = c;
+    RS.fontNow = f;
+    $$('[data-fs]', R.size).forEach(b => b.setAttribute('aria-pressed', b.dataset.fs === '0' && !RS.font));
+  }
+  function measureCW() {
+    const p = document.createElement('span');
+    p.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;font-size:100px;font-family:' + getComputedStyle(R.lines).fontFamily;
+    p.textContent = '0'.repeat(20);
+    document.body.appendChild(p);
+    CW = p.getBoundingClientRect().width / 2000 || 0.6;
+    p.remove();
+  }
+  if (document.fonts) document.fonts.ready.then(() => { measureCW(); fitReader(); });
+  new ResizeObserver(() => fitReader()).observe(R.body);
+
+  function openReader() {
+    lastFocus = document.activeElement;
+    S.reading = true;
+    voice.off();
+    Scene3D.setActive(false);
+    R.el.hidden = false;
+    document.body.classList.add('reading');
+    renderReader();
+    R.body.scrollTop = 0;
+    R.body.focus();
+  }
+  function closeReader() {
+    if (document.fullscreenElement === R.el) document.exitFullscreen().catch(() => {});
+    R.el.hidden = true;
+    document.body.classList.remove('reading');
+    S.reading = false;
+    lastNow = performance.now();
+    Scene3D.setActive(S.view === '3d' && S.visible);
+    if (S.sound && S.running && machine && machine.toneState) voice.set(machine.toneState.freq);
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  $('.reader-btn', wb).addEventListener('click', openReader);
+  R.close.addEventListener('click', closeReader);
+  R.el.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.fullscreenElement) closeReader(); });
+  R.prev.addEventListener('click', () => { setTask(S.task[S.lesson] - 1); renderReader(); R.body.scrollTop = 0; });
+  R.next.addEventListener('click', () => { setTask(S.task[S.lesson] + 1); renderReader(); R.body.scrollTop = 0; });
+  R.variants.addEventListener('click', e => {
+    const b = e.target.closest('[data-v]'); if (!b) return;
+    S.variant = +b.dataset.v; loadTask(); renderReader();
+  });
+  R.cm.addEventListener('click', e => {
+    const b = e.target.closest('[data-cm]'); if (!b) return;
+    RS.comments = b.dataset.cm === '1'; store.set('rd-cm', b.dataset.cm); renderReader();
+  });
+  R.diff.addEventListener('click', () => { RS.diff = !RS.diff; store.set('rd-diff', RS.diff ? '1' : '0'); renderReader(); });
+  R.size.addEventListener('click', e => {
+    const b = e.target.closest('[data-fs]'); if (!b) return;
+    const d = +b.dataset.fs;
+    RS.font = d ? Math.max(11, Math.min(48, RS.fontNow + 2 * d)) : null;
+    fitReader();
+  });
+  R.copy.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(RS.text); flash(R.copy, 'Скопировано'); }
+    catch (e) { flash(R.copy, 'Не удалось — выделите код мышкой'); }
+  });
+  // печать работает на сайте и в файле; во встроенном просмотре (iframe) браузер её не даёт
+  const framed = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+  R.print.hidden = framed;
+  R.print.addEventListener('click', () => { const open = R.tips.open; R.tips.open = true; window.print(); R.tips.open = open; });
+  R.full.hidden = !document.fullscreenEnabled;
+  R.full.addEventListener('click', () => {
+    const p = document.fullscreenElement === R.el ? document.exitFullscreen() : R.el.requestFullscreen();
+    if (p && p.catch) p.catch(() => { R.full.hidden = true; });
+  });
+  document.addEventListener('fullscreenchange', () => {
+    $('span', R.full).textContent = document.fullscreenElement === R.el ? 'Выйти из полноэкранного' : 'На весь экран';
+  });
 
   // ---------- Старт ----------
   highlightSnippets();
